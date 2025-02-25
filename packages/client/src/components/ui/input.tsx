@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils/cn"
-import * as React from "react"
+import { cn } from "@/lib/utils/cn";
+import * as React from "react";
 
 const Input = ({ className, type, ...props }: React.ComponentProps<"input">) => {
   return (
@@ -14,7 +14,7 @@ const Input = ({ className, type, ...props }: React.ComponentProps<"input">) => 
       )}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Input }
+export { Input };

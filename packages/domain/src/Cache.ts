@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import type * as Duration from "effect/Duration"
-import type * as Effect from "effect/Effect"
-import type * as Option from "effect/Option"
-import type * as Scope from "effect/Scope"
-import type * as Types from "effect/Types"
-import * as internal from "./internal/cache.js"
+import type * as Duration from "effect/Duration";
+import type * as Effect from "effect/Effect";
+import type * as Option from "effect/Option";
+import type * as Scope from "effect/Scope";
+import type * as Types from "effect/Types";
+import * as internal from "./internal/cache.js";
 
 /**
  * A `Cache` is a key-value store with a specified capacity and time to live for entries.
@@ -54,47 +54,47 @@ export interface Cache<in out Key, in out Value> extends Cache.Variance<Key, Val
    * Retrieves the value associated with the specified key if it exists.
    * Otherwise returns Option.none.
    */
-  readonly get: (key: Key) => Effect.Effect<Option.Option<Value>>
+  readonly get: (key: Key) => Effect.Effect<Option.Option<Value>>;
 
   /**
    * Associates the specified value with the specified key in the cache.
    */
-  readonly set: (key: Key, value: Value) => Effect.Effect<void>
+  readonly set: (key: Key, value: Value) => Effect.Effect<void>;
 
   /**
    * Returns whether a value associated with the specified key exists in the cache.
    */
-  readonly contains: (key: Key) => Effect.Effect<boolean>
+  readonly contains: (key: Key) => Effect.Effect<boolean>;
 
   /**
    * Invalidates the value associated with the specified key.
    */
-  readonly invalidate: (key: Key) => Effect.Effect<void>
+  readonly invalidate: (key: Key) => Effect.Effect<void>;
 
   /**
    * Invalidates all values in the cache.
    */
-  readonly invalidateAll: Effect.Effect<void>
+  readonly invalidateAll: Effect.Effect<void>;
 
   /**
    * Returns the approximate number of values in the cache.
    */
-  readonly size: Effect.Effect<number>
+  readonly size: Effect.Effect<number>;
 
   /**
    * Returns an approximation of the keys in the cache.
    */
-  readonly keys: Effect.Effect<Array<Key>>
+  readonly keys: Effect.Effect<Array<Key>>;
 
   /**
    * Returns an approximation of the values in the cache.
    */
-  readonly values: Effect.Effect<Array<Value>>
+  readonly values: Effect.Effect<Array<Value>>;
 
   /**
    * Returns an approximation of the entries in the cache.
    */
-  readonly entries: Effect.Effect<Array<[Key, Value]>>
+  readonly entries: Effect.Effect<Array<[Key, Value]>>;
 }
 
 /**
@@ -107,9 +107,9 @@ export declare namespace Cache {
    */
   export interface Variance<in out Key, in out Value> {
     readonly [internal.CacheTypeId]: {
-      readonly _Key: Types.Invariant<Key>
-      readonly _Value: Types.Invariant<Value>
-    }
+      readonly _Key: Types.Invariant<Key>;
+      readonly _Value: Types.Invariant<Value>;
+    };
   }
 }
 
@@ -118,9 +118,9 @@ export declare namespace Cache {
  * @category models
  */
 export interface CacheStats {
-  readonly hits: number
-  readonly misses: number
-  readonly size: number
+  readonly hits: number;
+  readonly misses: number;
+  readonly size: number;
 }
 
 /**
@@ -128,7 +128,7 @@ export interface CacheStats {
  * @category models
  */
 export interface EntryStats {
-  readonly loadedMillis: number
+  readonly loadedMillis: number;
 }
 
 /**
@@ -149,6 +149,6 @@ export interface EntryStats {
  * @category constructors
  */
 export const make = <Key = never, Value = never>(options: {
-  readonly capacity: number
-  readonly timeToLive: Duration.DurationInput
-}): Effect.Effect<Cache<Key, Value>, never, Scope.Scope> => internal.make(options)
+  readonly capacity: number;
+  readonly timeToLive: Duration.DurationInput;
+}): Effect.Effect<Cache<Key, Value>, never, Scope.Scope> => internal.make(options);

@@ -1,7 +1,7 @@
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
-import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import * as React from "react";
 
-import { cn } from "@/lib/utils/cn"
+import { cn } from "@/lib/utils/cn";
 
 const AvatarRoot = ({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Root>) => {
   return (
@@ -10,8 +10,8 @@ const AvatarRoot = ({ className, ...props }: React.ComponentProps<typeof AvatarP
       className={cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
 const AvatarImage = ({
   className,
@@ -23,8 +23,8 @@ const AvatarImage = ({
       className={cn("aspect-square size-full", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
 const AvatarFallback = ({
   className,
@@ -36,10 +36,10 @@ const AvatarFallback = ({
       className={cn("bg-muted flex size-full items-center justify-center rounded-full", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
 export const Avatar = Object.assign(AvatarRoot, {
   Image: AvatarImage,
   Fallback: AvatarFallback,
-})
+});

@@ -1,5 +1,5 @@
-import * as Config from "effect/Config"
-import * as Effect from "effect/Effect"
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
 
 export class EnvVars extends Effect.Service<EnvVars>()("EnvVars", {
   accessors: true,
@@ -20,6 +20,6 @@ export class EnvVars extends Effect.Service<EnvVars>()("EnvVars", {
       OTLP_URL: yield* Config.url("OTLP_URL").pipe(
         Config.withDefault("http://jaeger:4318/v1/traces"),
       ),
-    } as const
+    } as const;
   }),
 }) {}

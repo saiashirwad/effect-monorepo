@@ -1,7 +1,7 @@
-import * as Array from "effect/Array"
-import { flow, pipe } from "effect/Function"
-import * as Option from "effect/Option"
-import * as String from "effect/String"
+import * as Array from "effect/Array";
+import { flow, pipe } from "effect/Function";
+import * as Option from "effect/Option";
+import * as String from "effect/String";
 
 /**
  * Generates initials from a given name.
@@ -27,8 +27,8 @@ export const getNameInitials = (name: string | null | undefined): string => {
       ),
     ),
     Option.getOrElse(() => "?"),
-  )
-}
+  );
+};
 
 /**
  * Normalizes a string by removing diacritics, converting to lowercase, and performing additional normalization.
@@ -50,7 +50,7 @@ export const normalizeString = flow(
   String.replace(/[æœ]/g, "ae"),
   String.replace(/ø/g, "o"),
   String.replace(/ß/g, "ss"),
-)
+);
 
 /**
  * Formats the message by replacing double newlines with a space and removing asterisks around words.
@@ -64,4 +64,4 @@ export const normalizeString = flow(
 export const stripMessageFormatting = flow(
   String.replace(/\\n\\n/g, " "),
   String.replace(/\*(.*?)\*/g, "$1"),
-)
+);

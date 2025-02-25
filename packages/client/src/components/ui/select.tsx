@@ -1,19 +1,19 @@
-import { cn } from "@/lib/utils/cn"
-import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
-import * as React from "react"
+import { cn } from "@/lib/utils/cn";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import * as React from "react";
 
 const SelectRoot = ({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) => {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
-}
+  return <SelectPrimitive.Root data-slot="select" {...props} />;
+};
 
 const SelectGroup = ({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) => {
-  return <SelectPrimitive.Group data-slot="select-group" {...props} />
-}
+  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
+};
 
 const SelectValue = ({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>) => {
-  return <SelectPrimitive.Value data-slot="select-value" {...props} />
-}
+  return <SelectPrimitive.Value data-slot="select-value" {...props} />;
+};
 
 const SelectTrigger = ({
   children,
@@ -34,8 +34,8 @@ const SelectTrigger = ({
         <ChevronDownIcon className="size-4 opacity-50" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
-  )
-}
+  );
+};
 
 const SelectContent = ({
   children,
@@ -69,8 +69,8 @@ const SelectContent = ({
         <SelectScrollDownButton />
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
-  )
-}
+  );
+};
 
 const SelectLabel = ({
   className,
@@ -82,8 +82,8 @@ const SelectLabel = ({
       className={cn("px-2 py-1.5 text-sm font-medium", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
 const SelectItem = ({
   children,
@@ -106,8 +106,8 @@ const SelectItem = ({
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
-  )
-}
+  );
+};
 
 const SelectSeparator = ({
   className,
@@ -119,8 +119,8 @@ const SelectSeparator = ({
       className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
 const SelectScrollUpButton = ({
   className,
@@ -134,8 +134,8 @@ const SelectScrollUpButton = ({
     >
       <ChevronUpIcon className="size-4" />
     </SelectPrimitive.ScrollUpButton>
-  )
-}
+  );
+};
 
 const SelectScrollDownButton = ({
   className,
@@ -149,8 +149,8 @@ const SelectScrollDownButton = ({
     >
       <ChevronDownIcon className="size-4" />
     </SelectPrimitive.ScrollDownButton>
-  )
-}
+  );
+};
 
 export const Select = Object.assign(SelectRoot, {
   Group: SelectGroup,
@@ -162,4 +162,4 @@ export const Select = Object.assign(SelectRoot, {
   Separator: SelectSeparator,
   ScrollUpButton: SelectScrollUpButton,
   ScrollDownButton: SelectScrollDownButton,
-})
+});

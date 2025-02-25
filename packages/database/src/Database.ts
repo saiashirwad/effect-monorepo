@@ -1,43 +1,43 @@
-import { drizzle } from "drizzle-orm/node-postgres"
-import * as Cause from "effect/Cause"
-import * as Data from "effect/Data"
-import * as Effect from "effect/Effect"
-import * as Exit from "effect/Exit"
-import * as Layer from "effect/Layer"
-import * as Redacted from "effect/Redacted"
-import * as Runtime from "effect/Runtime"
-import * as Schedule from "effect/Schedule"
-import * as pg from "pg"
-import * as DbSchema from "./DbSchema.js"
+import { drizzle } from "drizzle-orm/node-postgres";
+import * as Cause from "effect/Cause";
+import * as Data from "effect/Data";
+import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Layer from "effect/Layer";
+import * as Redacted from "effect/Redacted";
+import * as Runtime from "effect/Runtime";
+import * as Schedule from "effect/Schedule";
+import * as pg from "pg";
+import * as DbSchema from "./DbSchema.js";
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
-  readonly type: "unique_violation" | "foreign_key_violation" | "connection_error"
-  readonly cause: pg.DatabaseError
+  readonly type: "unique_violation" | "foreign_key_violation" | "connection_error";
+  readonly cause: pg.DatabaseError;
 }> {}
 
 const matchPgError = (error: unknown) => {
   if (error instanceof pg.DatabaseError) {
     switch (error.code) {
       case "23505":
-        return new DatabaseError({ type: "unique_violation", cause: error })
+        return new DatabaseError({ type: "unique_violation", cause: error });
       case "23503":
-        return new DatabaseError({ type: "foreign_key_violation", cause: error })
+        return new DatabaseError({ type: "foreign_key_violation", cause: error });
       case "08000":
-        return new DatabaseError({ type: "connection_error", cause: error })
+        return new DatabaseError({ type: "connection_error", cause: error });
     }
   }
-  return null
-}
+  return null;
+};
 
 export class DatabaseConnectionLostError extends Data.TaggedError("DatabaseConnectionLostError")<{
-  cause: unknown
-  message: string
+  cause: unknown;
+  message: string;
 }> {}
 
 export type Config = {
-  url: Redacted.Redacted
-  ssl: boolean
-}
+  url: Redacted.Redacted;
+  ssl: boolean;
+};
 
 const makeService = (config: Config) =>
   Effect.gen(function* () {
@@ -52,7 +52,7 @@ const makeService = (config: Config) =>
           }),
       ),
       (pool) => Effect.promise(() => pool.end()),
-    )
+    );
 
     yield* Effect.tryPromise(() => pool.query("SELECT 1")).pipe(
       Effect.retry(
@@ -68,7 +68,7 @@ const makeService = (config: Config) =>
         Effect.logInfo("[Database client]: Connection to the database established."),
       ),
       Effect.orDie,
-    )
+    );
 
     const setupConnectionListeners = Effect.zipRight(
       Effect.async<void, DatabaseConnectionLostError>((resume) => {
@@ -80,33 +80,33 @@ const makeService = (config: Config) =>
                 message: error.message,
               }),
             ),
-          )
-        })
+          );
+        });
 
         return Effect.sync(() => {
-          pool.removeAllListeners("error")
-        })
+          pool.removeAllListeners("error");
+        });
       }),
       Effect.logInfo("[Database client]: Connection error listeners initialized."),
       {
         concurrent: true,
       },
-    )
+    );
 
-    const db = drizzle(pool, { schema: DbSchema })
+    const db = drizzle(pool, { schema: DbSchema });
 
     const execute = Effect.fn(<T>(fn: (client: typeof db) => Promise<T>) =>
       Effect.tryPromise({
         try: () => fn(db),
         catch: (cause) => {
-          const error = matchPgError(cause)
+          const error = matchPgError(cause);
           if (error !== null) {
-            return error
+            return error;
           }
-          throw cause
+          throw cause;
         },
       }),
-    )
+    );
 
     const transaction = Effect.fn("Database.transaction")(
       <T, E, R>(
@@ -125,49 +125,49 @@ const makeService = (config: Config) =>
                   Effect.tryPromise({
                     try: () => fn(tx),
                     catch: (cause) => {
-                      const error = matchPgError(cause)
+                      const error = matchPgError(cause);
                       if (error !== null) {
-                        return error
+                        return error;
                       }
-                      throw cause
+                      throw cause;
                     },
-                  })
+                  });
 
-                const result = await runPromiseExit(execute(txWrapper))
+                const result = await runPromiseExit(execute(txWrapper));
                 Exit.match(result, {
                   onSuccess: (value) => {
-                    resume(Effect.succeed(value))
+                    resume(Effect.succeed(value));
                   },
                   onFailure: (cause) => {
                     if (Cause.isFailure(cause)) {
-                      resume(Effect.fail(Cause.originalError(cause) as E))
+                      resume(Effect.fail(Cause.originalError(cause) as E));
                     } else {
-                      resume(Effect.die(cause))
+                      resume(Effect.die(cause));
                     }
                   },
-                })
+                });
               }).catch((cause) => {
-                const error = matchPgError(cause)
-                resume(error !== null ? Effect.fail(error) : Effect.die(cause))
-              })
+                const error = matchPgError(cause);
+                resume(error !== null ? Effect.fail(error) : Effect.die(cause));
+              });
             }),
           ),
         ),
-    )
+    );
 
     return {
       execute,
       transaction,
       setupConnectionListeners,
-    } as const
-  })
+    } as const;
+  });
 
-type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>
+type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>;
 
 export class Database extends Effect.Tag("Database")<Database, Shape>() {}
 
-export const layer = (config: Config) => Layer.scoped(Database, makeService(config))
+export const layer = (config: Config) => Layer.scoped(Database, makeService(config));
 
-export type Transaction = Parameters<Parameters<Shape["transaction"]>[0]>[0]
-export type TransactionClient = Parameters<Parameters<Transaction>[0]>[0]
-export type Client = Parameters<Parameters<Shape["execute"]>[0]>[0]
+export type Transaction = Parameters<Parameters<Shape["transaction"]>[0]>[0];
+export type TransactionClient = Parameters<Parameters<Transaction>[0]>[0];
+export type Client = Parameters<Parameters<Shape["execute"]>[0]>[0];

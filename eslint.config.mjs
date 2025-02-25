@@ -1,29 +1,38 @@
 /* eslint-disable */
-import { fixupPluginRules } from "@eslint/compat"
-import { FlatCompat } from "@eslint/eslintrc"
-import js from "@eslint/js"
-import tsParser from "@typescript-eslint/parser"
-import codegen from "eslint-plugin-codegen"
-import _import from "eslint-plugin-import"
-import react from "eslint-plugin-react"
-import reactHooks from "eslint-plugin-react-hooks"
-import reactRefresh from "eslint-plugin-react-refresh"
-import simpleImportSort from "eslint-plugin-simple-import-sort"
-import sortDestructureKeys from "eslint-plugin-sort-destructure-keys"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
+import { fixupPluginRules } from "@eslint/compat";
+import { FlatCompat } from "@eslint/eslintrc";
+import js from "@eslint/js";
+import tsParser from "@typescript-eslint/parser";
+import codegen from "eslint-plugin-codegen";
+import _import from "eslint-plugin-import";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import sortDestructureKeys from "eslint-plugin-sort-destructure-keys";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
-})
+});
 
 export default [
   {
-    ignores: ["**/dist", "**/build", "**/docs", "**/*.md"],
+    ignores: [
+      "**/dist",
+      "**/build",
+      "**/docs",
+      "**/*.md",
+      "**/vitest.config.ts",
+      "**/setupTests.ts",
+      "**/vitest.shared.ts",
+      "**/vitest.workspace.ts",
+    ],
   },
   ...compat.extends(
     "eslint:recommended",
@@ -336,4 +345,4 @@ export default [
       ],
     },
   },
-]
+];

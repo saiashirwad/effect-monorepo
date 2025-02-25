@@ -1,31 +1,31 @@
-import * as NodeSdk from "@effect/opentelemetry/NodeSdk"
-import { BunHttpServer, BunRuntime } from "@effect/platform-bun"
-import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder"
-import * as HttpMiddleware from "@effect/platform/HttpMiddleware"
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http"
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base"
-import * as dotenv from "dotenv"
-import * as Cause from "effect/Cause"
-import * as ConfigError from "effect/ConfigError"
-import * as Effect from "effect/Effect"
-import * as Layer from "effect/Layer"
-import * as Schedule from "effect/Schedule"
-import { createServer } from "node:http"
-import { Database } from "../../database/src/Database.js"
-import { Api } from "./api.js"
-import { DatabaseLive } from "./common/database.js"
-import { EnvVars } from "./common/env-vars.js"
-import { MeLive } from "./public/me/me-live.js"
-import { UserAuthMiddlewareLive } from "./public/middlewares/auth-middleware-live.js"
+import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
+import { BunHttpServer, BunRuntime } from "@effect/platform-bun";
+import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
+import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import * as dotenv from "dotenv";
+import * as Cause from "effect/Cause";
+import * as ConfigError from "effect/ConfigError";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Schedule from "effect/Schedule";
+import { createServer } from "node:http";
+import { Database } from "../../database/src/Database.js";
+import { Api } from "./api.js";
+import { DatabaseLive } from "./common/database.js";
+import { EnvVars } from "./common/env-vars.js";
+import { MeLive } from "./public/me/me-live.js";
+import { UserAuthMiddlewareLive } from "./public/middlewares/auth-middleware-live.js";
 
 dotenv.config({
   path: "../../.env",
-})
+});
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide([MeLive]),
   Layer.provide([UserAuthMiddlewareLive]),
-)
+);
 
 const NodeSdkLive = Layer.unwrapEffect(
   EnvVars.OTLP_URL.pipe(
@@ -42,7 +42,7 @@ const NodeSdkLive = Layer.unwrapEffect(
       })),
     ),
   ),
-)
+);
 
 const CorsLive = Layer.unwrapEffect(
   EnvVars.pipe(
@@ -52,10 +52,10 @@ const CorsLive = Layer.unwrapEffect(
         allowedMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         allowedHeaders: ["Content-Type", "Authorization", "B3", "traceparent"],
         credentials: true,
-      })
+      });
     }),
   ),
-)
+);
 
 const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(CorsLive),
@@ -65,7 +65,7 @@ const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(NodeSdkLive),
   Layer.provide(EnvVars.Default),
   Layer.provide(BunHttpServer.layer(createServer)),
-)
+);
 
 Layer.launch(HttpLive).pipe(
   Effect.tapErrorCause(Effect.logError),
@@ -80,4 +80,4 @@ Layer.launch(HttpLive).pipe(
     ),
   }),
   BunRuntime.runMain({}),
-)
+);

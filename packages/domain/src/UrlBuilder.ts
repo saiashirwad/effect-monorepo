@@ -1,36 +1,36 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
-import { type Coercible } from "@effect/platform/UrlParams"
-import { type NonEmptyArray, type NonEmptyReadonlyArray } from "effect/Array"
-import { type Inspectable, NodeInspectSymbol } from "effect/Inspectable"
-import type { Pipeable } from "effect/Pipeable"
-import { pipeArguments } from "effect/Pipeable"
+import { type Coercible } from "@effect/platform/UrlParams";
+import { type NonEmptyArray, type NonEmptyReadonlyArray } from "effect/Array";
+import { type Inspectable, NodeInspectSymbol } from "effect/Inspectable";
+import type { Pipeable } from "effect/Pipeable";
+import { pipeArguments } from "effect/Pipeable";
 
 type Writeable<T extends { [x: string | symbol]: any }, K extends string | symbol> = {
-  [P in K]: T[P]
-}
+  [P in K]: T[P];
+};
 
 /**
  * @since 1.0.0
  * @category symbols
  */
-const TypeId = Symbol.for("UrlBuilder")
+const TypeId = Symbol.for("UrlBuilder");
 
 /**
  * @since 1.0.0
  * @category symbols
  */
-export type TypeId = typeof TypeId
+export type TypeId = typeof TypeId;
 
 /**
  * @since 1.0.0
  * @category models
  */
 export interface UrlBuilder extends Inspectable, Pipeable {
-  readonly [TypeId]: TypeId
-  readonly root: string
-  readonly paths: ReadonlyArray<string>
-  readonly params: URLSearchParams
+  readonly [TypeId]: TypeId;
+  readonly root: string;
+  readonly paths: ReadonlyArray<string>;
+  readonly params: URLSearchParams;
 }
 
 const fromInput = (
@@ -40,15 +40,15 @@ const fromInput = (
     | Iterable<readonly [string, Coercible]>,
 ): URLSearchParams => {
   if (input instanceof URLSearchParams) {
-    return input
+    return input;
   }
 
-  const params = new URLSearchParams()
+  const params = new URLSearchParams();
 
   if (Symbol.iterator in input) {
     for (const [key, value] of input) {
       if (value != null) {
-        params.append(key, String(value))
+        params.append(key, String(value));
       }
     }
   } else {
@@ -56,25 +56,25 @@ const fromInput = (
       if (Array.isArray(value)) {
         for (const item of value) {
           if (item != null) {
-            params.append(key, String(item))
+            params.append(key, String(item));
           }
         }
       } else if (value != null) {
-        params.append(key, String(value))
+        params.append(key, String(value));
       }
     }
   }
 
-  return params
-}
+  return params;
+};
 
 const UrlBuilderProto: Omit<UrlBuilder, "root" | "paths" | "params"> = {
   [TypeId]: TypeId,
   pipe() {
-    return pipeArguments(this, arguments)
+    return pipeArguments(this, arguments);
   },
   toString(this: UrlBuilder) {
-    return toString(this)
+    return toString(this);
   },
   toJSON(this: UrlBuilder) {
     return {
@@ -82,12 +82,12 @@ const UrlBuilderProto: Omit<UrlBuilder, "root" | "paths" | "params"> = {
       root: this.root,
       paths: this.paths,
       params: this.params,
-    }
+    };
   },
   [NodeInspectSymbol]() {
-    return this.toJSON()
+    return this.toJSON();
   },
-}
+};
 
 /**
  * Creates a new `UrlBuilder` instance with the specified root URL and optional initial paths and params.
@@ -142,12 +142,12 @@ export const make = (
     | Iterable<readonly [string, Coercible]> = new URLSearchParams(),
 ): UrlBuilder => {
   const builder: Writeable<typeof UrlBuilderProto, keyof UrlBuilder> =
-    Object.create(UrlBuilderProto)
-  builder.root = root.replace(/\/+$/, "")
-  builder.paths = paths === undefined ? [] : typeof paths === "string" ? [paths] : paths
-  builder.params = fromInput(params)
-  return builder as UrlBuilder
-}
+    Object.create(UrlBuilderProto);
+  builder.root = root.replace(/\/+$/, "");
+  builder.paths = paths === undefined ? [] : typeof paths === "string" ? [paths] : paths;
+  builder.params = fromInput(params);
+  return builder as UrlBuilder;
+};
 
 /**
  * Creates a new `UrlBuilder` instance with the specified root URL.
@@ -172,7 +172,7 @@ export const make = (
  * @since 1.0.0
  * @category constructors
  */
-export const setRoot = (root: string): UrlBuilder => make(root)
+export const setRoot = (root: string): UrlBuilder => make(root);
 
 /**
  * Adds a single path segment to the URL.
@@ -207,9 +207,9 @@ export const setRoot = (root: string): UrlBuilder => make(root)
 export const addPath =
   (path: string) =>
   (self: UrlBuilder): UrlBuilder => {
-    const newPaths = [...self.paths, path] as unknown as NonEmptyReadonlyArray<string>
-    return make(self.root, newPaths.length === 0 ? undefined : newPaths)
-  }
+    const newPaths = [...self.paths, path] as unknown as NonEmptyReadonlyArray<string>;
+    return make(self.root, newPaths.length === 0 ? undefined : newPaths);
+  };
 
 /**
  * Adds multiple path segments to the URL in a single operation.
@@ -250,9 +250,9 @@ export const addPath =
 export const addPaths =
   (...paths: Array<string>) =>
   (self: UrlBuilder): UrlBuilder => {
-    const newPaths = [...self.paths, ...paths] as unknown as NonEmptyReadonlyArray<string>
-    return make(self.root, newPaths.length === 0 ? undefined : newPaths)
-  }
+    const newPaths = [...self.paths, ...paths] as unknown as NonEmptyReadonlyArray<string>;
+    return make(self.root, newPaths.length === 0 ? undefined : newPaths);
+  };
 
 /**
  * Type guard to check if a value is a `UrlBuilder` instance.
@@ -281,7 +281,7 @@ export const addPaths =
  * @category guards
  */
 export const isUrlBuilder = (u: unknown): u is UrlBuilder =>
-  typeof u === "object" && u !== null && TypeId in u
+  typeof u === "object" && u !== null && TypeId in u;
 
 /**
  * Sets a single URL parameter, replacing any existing values for the same key.
@@ -316,18 +316,18 @@ export const isUrlBuilder = (u: unknown): u is UrlBuilder =>
 export const setParam =
   (key: string, value: Coercible) =>
   (self: UrlBuilder): UrlBuilder => {
-    const newParams = new URLSearchParams(self.params)
+    const newParams = new URLSearchParams(self.params);
     if (value == null) {
-      newParams.delete(key)
+      newParams.delete(key);
     } else {
-      newParams.set(key, String(value))
+      newParams.set(key, String(value));
     }
     return make(
       self.root,
       self.paths.length === 0 ? undefined : (self.paths as NonEmptyArray<string>),
       newParams,
-    )
-  }
+    );
+  };
 
 /**
  * Appends a URL parameter value, preserving any existing values for the same key.
@@ -358,15 +358,15 @@ export const setParam =
 export const appendParam =
   (key: string, value: Coercible) =>
   (self: UrlBuilder): UrlBuilder => {
-    if (value == null) return self
-    const newParams = new URLSearchParams(self.params)
-    newParams.append(key, String(value))
+    if (value == null) return self;
+    const newParams = new URLSearchParams(self.params);
+    newParams.append(key, String(value));
     return make(
       self.root,
       self.paths.length === 0 ? undefined : (self.paths as NonEmptyArray<string>),
       newParams,
-    )
-  }
+    );
+  };
 
 /**
  * Sets multiple URL parameters at once, replacing all existing parameters.
@@ -404,13 +404,13 @@ export const appendParam =
 export const setParams =
   (input: Parameters<typeof fromInput>[0]) =>
   (self: UrlBuilder): UrlBuilder => {
-    const newParams = fromInput(input)
+    const newParams = fromInput(input);
     return make(
       self.root,
       self.paths.length === 0 ? undefined : (self.paths as NonEmptyArray<string>),
       newParams,
-    )
-  }
+    );
+  };
 
 /**
  * Converts a `UrlBuilder` instance to its string representation.
@@ -436,10 +436,10 @@ export const setParams =
  * @category getters
  */
 export const toString = (self: UrlBuilder): string => {
-  const path = self.paths.length === 0 ? self.root : `${self.root}/${self.paths.join("/")}`
-  const query = self.params.toString()
-  return query === "" ? path : `${path}?${query}`
-}
+  const path = self.paths.length === 0 ? self.root : `${self.root}/${self.paths.join("/")}`;
+  const query = self.params.toString();
+  return query === "" ? path : `${path}?${query}`;
+};
 
 /**
  * Converts a `UrlBuilder` instance to a `URL` object.
@@ -466,4 +466,4 @@ export const toString = (self: UrlBuilder): string => {
  * @since 1.0.0
  * @category getters
  */
-export const toURL = (self: UrlBuilder): URL => new URL(toString(self))
+export const toURL = (self: UrlBuilder): URL => new URL(toString(self));

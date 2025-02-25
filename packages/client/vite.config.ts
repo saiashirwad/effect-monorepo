@@ -1,12 +1,12 @@
 /// <reference types="vitest/config" />
 /* eslint-disable */
-import tailwindcss from "@tailwindcss/vite"
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite"
-import react from "@vitejs/plugin-react"
-import { visualizer } from "rollup-plugin-visualizer"
-import { defineConfig } from "vite"
-import tsconfigPaths from "vite-tsconfig-paths"
-import { ViteUserConfig } from "vitest/config.js"
+import tailwindcss from "@tailwindcss/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
+import { ViteUserConfig } from "vitest/config.js";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -40,4 +40,4 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
   } satisfies ViteUserConfig["test"],
-})
+});

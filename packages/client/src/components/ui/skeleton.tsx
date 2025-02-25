@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/cn"
+import { cn } from "@/lib/utils/cn";
 
 const Skeleton = ({ className, ...props }: React.ComponentProps<"div">) => {
   return (
@@ -7,7 +7,7 @@ const Skeleton = ({ className, ...props }: React.ComponentProps<"div">) => {
       className={cn("bg-primary/10 animate-pulse rounded-md", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Skeleton }
+export { Skeleton };

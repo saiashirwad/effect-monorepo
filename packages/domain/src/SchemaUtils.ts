@@ -1,17 +1,17 @@
-import * as Array from "effect/Array"
-import * as Effect from "effect/Effect"
-import * as Either from "effect/Either"
-import * as Equal from "effect/Equal"
-import { identity } from "effect/Function"
-import * as Hash from "effect/Hash"
-import * as HashSet from "effect/HashSet"
-import * as Option from "effect/Option"
-import * as ParseResult from "effect/ParseResult"
-import { ArrayFormatter, type ParseIssue } from "effect/ParseResult"
-import * as Predicate from "effect/Predicate"
-import * as Schema from "effect/Schema"
-import * as SchemaAST from "effect/SchemaAST"
-import * as Struct from "effect/Struct"
+import * as Array from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as Either from "effect/Either";
+import * as Equal from "effect/Equal";
+import { identity } from "effect/Function";
+import * as Hash from "effect/Hash";
+import * as HashSet from "effect/HashSet";
+import * as Option from "effect/Option";
+import * as ParseResult from "effect/ParseResult";
+import { ArrayFormatter, type ParseIssue } from "effect/ParseResult";
+import * as Predicate from "effect/Predicate";
+import * as Schema from "effect/Schema";
+import * as SchemaAST from "effect/SchemaAST";
+import * as Struct from "effect/Struct";
 
 /**
  * A schema for validating email addresses.
@@ -32,7 +32,7 @@ export const Email = (opts?: { requiredMessage?: string; invalidMessage?: string
     Schema.annotations({
       identifier: "Email",
     }),
-  )
+  );
 
 /**
  * A schema for validating URL strings.
@@ -45,7 +45,7 @@ export const URLString = Schema.URL.pipe(
     encode: (input) => new URL(input),
     strict: true,
   }),
-)
+);
 
 /**
  * A schema for destructive transformations when you need to infer the type from the result of the transformation callback, without specifying the encoded type.
@@ -67,8 +67,8 @@ export function destructiveTransform<A, B>(transform: (input: A) => B) {
             "Encoding is not supported for destructive transformations",
           ),
         ),
-    })
-  }
+    });
+  };
 }
 
 /**
@@ -84,8 +84,8 @@ export function destructiveTransform<A, B>(transform: (input: A) => B) {
 export const formatParseIssueMessages = (
   issue: ParseIssue,
   opts?: {
-    newLines?: number
-    numbered?: boolean
+    newLines?: number;
+    numbered?: boolean;
   },
 ) =>
   ArrayFormatter.formatIssue(issue).pipe(
@@ -97,7 +97,7 @@ export const formatParseIssueMessages = (
         )
         .join("\n".repeat(opts?.newLines ?? 1)),
     ),
-  )
+  );
 
 /**
  * Creates a schema that allows null values and falls back to null on decoding errors.
@@ -109,7 +109,7 @@ export const NullOrFromFallible = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
     Schema.annotations({
       decodingFallback: () => Either.right(null),
     }),
-  )
+  );
 
 /**
  * A schema for transforming a partitioned array of invalid values into a non-nullable array.
@@ -135,7 +135,7 @@ export const ArrayFromFallible = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
       encode: identity,
       strict: true,
     }),
-  )
+  );
 
 /**
  * A schema for transforming a partitioned array of invalid values into a non-nullable HashSet.
@@ -149,7 +149,7 @@ export const HashSetFromFallibleArray = <A, I, R>(schema: Schema.Schema<A, I, R>
       encode: (hashSet) => Array.fromIterable(hashSet),
       strict: true,
     }),
-  )
+  );
 
 /**
  * A schema for transforming a partitioned array of invalid values into a non-nullable Set.
@@ -163,7 +163,7 @@ export const SetFromFallibleArray = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
       encode: (set) => Array.fromIterable(set),
       strict: true,
     }),
-  )
+  );
 
 /**
  * Creates a schema that transforms an array into a HashSet during decoding and back to an array during encoding.
@@ -183,9 +183,9 @@ export const HashSetFromIterable = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
     strict: true,
     decode: (array) => HashSet.fromIterable(array),
     encode: (hashSet) => Array.fromIterable(hashSet),
-  })
+  });
 
-export const noHashKey = Symbol("noHashKey")
+export const noHashKey = Symbol("noHashKey");
 /**
  * A schema for adding equality and hash functions to a resulting record.
  *
@@ -197,12 +197,12 @@ export const WithEquality =
     hashKey,
   }:
     | {
-        hashKey: keyof A
-        equalityFn?: (a: A, b: A) => boolean
+        hashKey: keyof A;
+        equalityFn?: (a: A, b: A) => boolean;
       }
     | {
-        hashKey: typeof noHashKey
-        equalityFn: (a: A, b: A) => boolean
+        hashKey: typeof noHashKey;
+        equalityFn: (a: A, b: A) => boolean;
       }) =>
   (schema: Schema.Schema<A, I, R>): Schema.Schema<A, I, R> =>
     Schema.transform(schema, Schema.Any, {
@@ -210,22 +210,22 @@ export const WithEquality =
         const extensions: Partial<Record<symbol, unknown>> = {
           [Hash.symbol](this: A): number {
             if (hashKey === noHashKey) {
-              return 0
+              return 0;
             }
-            return Hash.cached(this, Hash.hash(this[hashKey]))
+            return Hash.cached(this, Hash.hash(this[hashKey]));
           },
           [Equal.symbol](that: unknown): boolean {
             if (!Schema.is(schema)(that)) {
-              return false
+              return false;
             }
 
             if (equalityFn !== undefined) {
-              return equalityFn(this as unknown as A, that)
+              return equalityFn(this as unknown as A, that);
             }
 
-            return Hash.hash(this) === Hash.hash(that)
+            return Hash.hash(this) === Hash.hash(that);
           },
-        }
+        };
 
         if (equalityFn !== undefined) {
           extensions[Equal.symbol] = function (that: unknown): boolean {
@@ -233,15 +233,15 @@ export const WithEquality =
               Equal.isEqual(that) &&
               Schema.is(schema)(that) &&
               equalityFn(this as unknown as A, that)
-            )
-          }
+            );
+          };
         }
 
-        return Object.assign(value, extensions)
+        return Object.assign(value, extensions);
       },
       encode: identity,
       strict: true,
-    })
+    });
 
 /**
  * Creates a schema that derives and attaches a property to the original schema.
@@ -259,9 +259,9 @@ export const deriveAndAttachProperty =
     ToR,
     DecodeR = never,
   >(args: {
-    key: Key
-    typeSchema: Schema.Schema<ToA, ToI, ToR>
-    decode: (input: FromA) => Effect.Effect<ToA, never, DecodeR>
+    key: Key;
+    typeSchema: Schema.Schema<ToA, ToI, ToR>;
+    decode: (input: FromA) => Effect.Effect<ToA, never, DecodeR>;
   }) =>
   (
     self: Schema.Schema<FromA, FromI, FromR>,
@@ -270,14 +270,14 @@ export const deriveAndAttachProperty =
       Schema.Struct({
         [args.key]: args.typeSchema,
       } as const),
-    )
+    );
 
-    const extendedSchema = Schema.extend(Schema.typeSchema(self), derivedSchema)
+    const extendedSchema = Schema.extend(Schema.typeSchema(self), derivedSchema);
 
     return Schema.transformOrFail(self, Schema.typeSchema(extendedSchema), {
       decode: (input) =>
         Effect.gen(function* () {
-          const result = args.decode(input)
+          const result = args.decode(input);
 
           if (Effect.isEffect(result)) {
             return yield* result.pipe(
@@ -285,18 +285,18 @@ export const deriveAndAttachProperty =
                 ...input,
                 [args.key]: value,
               })),
-            )
+            );
           }
 
           return {
             ...input,
             [args.key]: result,
-          }
+          };
         }),
       encode: (struct) => ParseResult.succeed(Struct.omit(args.key)(struct)),
       strict: false,
-    })
-  }
+    });
+  };
 
 /**
  * Lifts a `Schema` to a `PropertySignature` and enhances it by specifying a different key for it in the Encoded type.
@@ -310,4 +310,4 @@ export const fromKey: <const K extends string>(
 ) => Schema.PropertySignature<":", A, K, ":", I, false, R> =
   <const K extends string>(key: K) =>
   <A, I, R>(self: Schema.Schema<A, I, R>) =>
-    self.pipe(Schema.propertySignature, Schema.fromKey(key))
+    self.pipe(Schema.propertySignature, Schema.fromKey(key));

@@ -1,11 +1,11 @@
-import * as Either from "effect/Either"
-import { pipe } from "effect/Function"
-import { TreeFormatter } from "effect/ParseResult"
-import * as Schema from "effect/Schema"
+import * as Either from "effect/Either";
+import { pipe } from "effect/Function";
+import { TreeFormatter } from "effect/ParseResult";
+import * as Schema from "effect/Schema";
 
 const EnvVars = Schema.Struct({
   API_URL: Schema.URL,
-})
+});
 
 export const envVars = pipe(
   {
@@ -15,6 +15,6 @@ export const envVars = pipe(
   Either.getOrElse((parseIssue) => {
     throw new Error(
       `❌ Invalid environment variables: ${TreeFormatter.formatErrorSync(parseIssue)}`,
-    )
+    );
   }),
-)
+);

@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["test", "src/common/token-cipher.test.ts"],
+  "include": ["test", "src/**/*.test.ts"],
   "references": [
     { "path": "tsconfig.src.json" },
     { "path": "../domain" },
@@ -9,7 +9,7 @@
   "compilerOptions": {
     "types": ["node"],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
-    "rootDir": "test",
+    "rootDir": ".",
     "noEmit": true
   }
 }

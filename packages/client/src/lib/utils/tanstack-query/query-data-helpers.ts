@@ -1,15 +1,15 @@
-import { QueryClient } from "@/layers/common/query-client"
-import type { DeepMutable } from "@/lib/helper-types"
-import * as Effect from "effect/Effect"
-import * as mutative from "mutative"
-import { type QueryVariables } from "./effect-query"
+import { QueryClient } from "@/layers/common/query-client";
+import type { DeepMutable } from "@/lib/helper-types";
+import * as Effect from "effect/Effect";
+import * as mutative from "mutative";
+import { type QueryVariables } from "./effect-query";
 
-export type QueryDataUpdater<TData> = (draft: mutative.Draft<DeepMutable<TData>>) => void
+export type QueryDataUpdater<TData> = (draft: mutative.Draft<DeepMutable<TData>>) => void;
 
 type QueryKey<
   Key extends string,
   Variables extends QueryVariables | void = void,
-> = Variables extends void ? readonly [Key] : readonly [Key, Variables]
+> = Variables extends void ? readonly [Key] : readonly [Key, Variables];
 
 /**
  * Creates a type-safe query key factory that can be used with or without variables
@@ -39,7 +39,7 @@ export function makeQueryKey<Key extends string, Variables extends QueryVariable
       ? ([key] as const)
       : ([key, variables] as const)) as Variables extends void
     ? () => QueryKey<Key>
-    : (variables: Variables) => QueryKey<Key, Variables>
+    : (variables: Variables) => QueryKey<Key, Variables>;
 }
 
 /**
@@ -84,13 +84,13 @@ export function makeHelpers<Data, Variables = void>(
     ? () => readonly [string]
     : (variables: Variables) => readonly [string, ...Array<unknown>],
 ) {
-  const namespaceKey = (queryKey as () => readonly [string])()[0]
+  const namespaceKey = (queryKey as () => readonly [string])()[0];
 
   type SetDataParams = Variables extends void
     ? [(draft: mutative.Draft<DeepMutable<Data>>) => Data | void]
-    : [Variables, (draft: mutative.Draft<DeepMutable<Data>>) => Data | void]
+    : [Variables, (draft: mutative.Draft<DeepMutable<Data>>) => Data | void];
 
-  type QueryParams = Variables extends void ? [] : [Variables]
+  type QueryParams = Variables extends void ? [] : [Variables];
 
   return {
     removeQuery: (...variables: QueryParams) =>
@@ -100,11 +100,11 @@ export function makeHelpers<Data, Variables = void>(
             variables.length === 0
               ? (queryKey as () => readonly [string])()
               : (queryKey as (v: Variables) => readonly [string, ...Array<unknown>])(variables[0]),
-        })
+        });
       }),
     removeAllQueries: () =>
       QueryClient.use((client) => {
-        client.removeQueries({ queryKey: [namespaceKey], exact: false })
+        client.removeQueries({ queryKey: [namespaceKey], exact: false });
       }),
     setData: (...params: SetDataParams) =>
       QueryClient.use((client) =>
@@ -113,18 +113,18 @@ export function makeHelpers<Data, Variables = void>(
             ? (queryKey as () => readonly [string])()
             : (queryKey as (v: Variables) => readonly [string, ...Array<unknown>])(params[0]),
           (oldData) => {
-            if (oldData === undefined) return oldData
+            if (oldData === undefined) return oldData;
             return mutative.create(
               oldData,
               (data) => {
-                const updater = params.length === 1 ? params[0] : params[1]
-                const result = updater(data)
+                const updater = params.length === 1 ? params[0] : params[1];
+                const result = updater(data);
                 if (result !== undefined) {
-                  return result
+                  return result;
                 }
               },
               {},
-            ) as Data
+            ) as Data;
           },
         ),
       ),
@@ -154,5 +154,5 @@ export function makeHelpers<Data, Variables = void>(
       QueryClient.use((client) =>
         client.refetchQueries({ queryKey: [namespaceKey], exact: false }),
       ).pipe(Effect.orDie),
-  }
+  };
 }
