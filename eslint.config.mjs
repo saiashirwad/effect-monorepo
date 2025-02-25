@@ -1,0 +1,339 @@
+/* eslint-disable */
+import { fixupPluginRules } from "@eslint/compat"
+import { FlatCompat } from "@eslint/eslintrc"
+import js from "@eslint/js"
+import tsParser from "@typescript-eslint/parser"
+import codegen from "eslint-plugin-codegen"
+import _import from "eslint-plugin-import"
+import react from "eslint-plugin-react"
+import reactHooks from "eslint-plugin-react-hooks"
+import reactRefresh from "eslint-plugin-react-refresh"
+import simpleImportSort from "eslint-plugin-simple-import-sort"
+import sortDestructureKeys from "eslint-plugin-sort-destructure-keys"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+})
+
+export default [
+  {
+    ignores: ["**/dist", "**/build", "**/docs", "**/*.md"],
+  },
+  ...compat.extends(
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@effect/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+  ),
+  {
+    plugins: {
+      import: fixupPluginRules(_import),
+      react,
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+      "sort-destructure-keys": sortDestructureKeys,
+      codegen,
+      "simple-import-sort": simpleImportSort,
+    },
+
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2018,
+      sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+        projectService: {
+          allowDefaultProject: ["*.js", "*.mjs", "scripts/*.mjs"],
+        },
+        tsconfigRootDir: process.cwd(),
+      },
+    },
+
+    settings: {
+      "import/parsers": {
+        "@typescript-eslint/parser": [".ts", ".tsx"],
+      },
+
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+        },
+      },
+
+      react: {
+        version: "detect",
+      },
+    },
+
+    rules: {
+      "codegen/codegen": "error",
+      "no-fallthrough": "off",
+      "no-irregular-whitespace": "off",
+      "object-shorthand": "error",
+      "prefer-destructuring": "off",
+      "sort-imports": "off",
+      "no-console": "error",
+
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.property.name='push'] > SpreadElement.arguments",
+          message: "Do not use spread arguments in Array.push",
+        },
+        {
+          selector: "ExportDefaultDeclaration",
+          message: "Prefer named exports",
+        },
+        {
+          selector:
+            "ImportDeclaration[source.value='lucide-react'] ImportSpecifier > Identifier[name!=/Icon$/]",
+          message: "Lucide imports must end with 'Icon' (e.g., 'ClockIcon' instead of 'Clock')",
+        },
+      ],
+
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../*"],
+              message: "Use absolute imports instead of relative parent imports (../)",
+            },
+          ],
+          paths: [
+            {
+              name: "effect",
+              message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
+            },
+            {
+              name: "@effect/platform",
+              message:
+                "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
+            },
+          ],
+        },
+      ],
+
+      "prefer-rest-params": "off",
+      "prefer-spread": "off",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "import/no-unresolved": "off",
+      "import/order": "off",
+      "simple-import-sort/imports": "off",
+      "sort-destructure-keys/sort-destructure-keys": "error",
+
+      "@typescript-eslint/array-type": [
+        "warn",
+        {
+          default: "generic",
+          readonly: "generic",
+        },
+      ],
+
+      "@typescript-eslint/member-delimiter-style": 0,
+      "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          prefer: "type-imports",
+          fixStyle: "inline-type-imports",
+        },
+      ],
+      "@typescript-eslint/consistent-type-exports": [
+        "error",
+        {
+          fixMixedExportsWithInlineTypeSpecifier: true,
+        },
+      ],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          selector: "function",
+          format: ["camelCase", "PascalCase"],
+        },
+        {
+          selector: "typeLike",
+          format: ["PascalCase"],
+        },
+        {
+          selector: "variable",
+          format: ["camelCase", "PascalCase", "UPPER_CASE"],
+          leadingUnderscore: "allow",
+        },
+      ],
+
+      // TypeScript - Variables & Usage
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          vars: "all",
+          args: "all",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      "prefer-const": "error",
+      "no-var": "error",
+
+      // TypeScript - Code Quality
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "error",
+      "@typescript-eslint/no-unsafe-call": "error",
+      "@typescript-eslint/no-unsafe-return": "error",
+      "@typescript-eslint/no-unsafe-argument": "error",
+      "@typescript-eslint/no-non-null-assertion": "error",
+      "@typescript-eslint/no-unnecessary-type-assertion": "error",
+      "@typescript-eslint/no-empty-interface": "error",
+      "@typescript-eslint/no-duplicate-enum-values": "error",
+
+      // TypeScript - Promises & Async
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+      "@typescript-eslint/return-await": "error",
+
+      // TypeScript - Types & Interfaces
+      "@typescript-eslint/consistent-type-definitions": ["warn", "type"],
+      "@typescript-eslint/explicit-member-accessibility": [
+        "error",
+        {
+          accessibility: "explicit",
+          overrides: {
+            accessors: "off",
+            constructors: "no-public",
+            methods: "explicit",
+            properties: "explicit",
+            parameterProperties: "explicit",
+          },
+        },
+      ],
+      "@typescript-eslint/consistent-generic-constructors": "error",
+
+      "@typescript-eslint/prefer-nullish-coalescing": "error",
+      "@typescript-eslint/no-unnecessary-condition": "error",
+      "@typescript-eslint/prefer-optional-chain": "error",
+      "@typescript-eslint/no-confusing-non-null-assertion": "error",
+      "@typescript-eslint/no-confusing-void-expression": "error",
+      "@typescript-eslint/no-meaningless-void-operator": "error",
+      "@typescript-eslint/strict-boolean-expressions": [
+        "error",
+        {
+          allowString: false,
+          allowNumber: false,
+          allowNullableObject: false,
+          allowNullableBoolean: false,
+          allowNullableString: false,
+          allowNullableNumber: false,
+          allowNullableEnum: false,
+          allowAny: false,
+          allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing: false,
+        },
+      ],
+      "no-dupe-else-if": "error",
+      "no-dupe-keys": "error",
+      "no-else-return": "error",
+      "no-unreachable": "error",
+      "no-use-before-define": "warn",
+      "dot-notation": "error",
+      eqeqeq: "error",
+      "no-lonely-if": "error",
+      "no-return-await": "error",
+      "no-useless-catch": "error",
+      "consistent-return": "warn",
+      "no-unneeded-ternary": "error",
+      "no-plusplus": [
+        "error",
+        {
+          allowForLoopAfterthoughts: true,
+        },
+      ],
+      "no-implicit-coercion": "error",
+      "no-shadow": "warn",
+      "no-self-compare": "error",
+
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/camelcase": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/interface-name-prefix": "off",
+      "@typescript-eslint/no-array-constructor": "off",
+      "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/no-namespace": "off",
+
+      // React
+      "react/function-component-definition": [
+        "warn",
+        {
+          namedComponents: ["arrow-function"],
+          unnamedComponents: "arrow-function",
+        },
+      ],
+      "react/prop-types": "off",
+      "react/jsx-key": "error",
+      "react/jsx-no-target-blank": "error",
+      "react/jsx-no-useless-fragment": "warn",
+      "react/no-array-index-key": "warn",
+      "react/no-deprecated": "warn",
+      "react/no-unused-state": "error",
+      "react/button-has-type": "error",
+      "react/display-name": "error",
+      "react/hook-use-state": "error",
+      "react/jsx-fragments": ["error", "element"],
+      "react/no-children-prop": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-curly-brace-presence": "error",
+      "react/jsx-boolean-value": "error",
+      "react/no-direct-mutation-state": "error",
+      "react/self-closing-comp": "error",
+      "react/no-unknown-property": "error",
+
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+
+      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/exhaustive-deps": "warn",
+
+      "@effect/dprint": "off",
+    },
+  },
+  {
+    files: ["packages/{server,domain}/**/*.{ts,tsx,js,jsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "effect",
+              message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
+            },
+            {
+              name: "@effect/platform",
+              message:
+                "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
+            },
+          ],
+        },
+      ],
+    },
+  },
+]
