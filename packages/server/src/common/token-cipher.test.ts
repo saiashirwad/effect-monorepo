@@ -4,19 +4,19 @@ import * as Effect from "effect/Effect"
 import * as Exit from "effect/Exit"
 import * as Redacted from "effect/Redacted"
 import * as Schema from "effect/Schema"
-import * as TokenEncryption from "../../src/common/token-encryption.js"
+import * as TokenCipher from "./token-cipher.js"
 
 const TEST_KEY = Redacted.make("test-key-32-chars-exactly-12345678")
-const TestEncryption = TokenEncryption.layer(TEST_KEY, "aes-256-gcm")
+const TestCipher = TokenCipher.layer(TEST_KEY, "aes-256-gcm")
 
-describe("TokenEncryption", () => {
-  describe("encryptToken", () => {
+describe("TokenCipher", () => {
+  describe("encrypt", () => {
     it.effect("should encrypt a token and return base64 encoded data and IV", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const token = Redacted.make("my-secret-token")
 
-        const result = yield* tokenEncryption.encryptToken(token)
+        const result = yield* tokenCipher.encrypt(token)
 
         deepStrictEqual(typeof result.encryptedData, "string")
         deepStrictEqual(typeof result.iv, "string")
@@ -26,153 +26,151 @@ describe("TokenEncryption", () => {
           result.encryptedData,
         )
         deepStrictEqual(Buffer.from(result.iv, "base64").toString("base64"), result.iv)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should produce different ciphertexts for the same plaintext due to random IV", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const token = Redacted.make("my-secret-token")
 
-        const result1 = yield* tokenEncryption.encryptToken(token)
-        const result2 = yield* tokenEncryption.encryptToken(token)
+        const result1 = yield* tokenCipher.encrypt(token)
+        const result2 = yield* tokenCipher.encrypt(token)
 
         deepStrictEqual(result1.encryptedData !== result2.encryptedData, true)
         deepStrictEqual(result1.iv !== result2.iv, true)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should handle empty strings", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const token = Redacted.make("")
 
-        const result = yield* tokenEncryption.encryptToken(token)
+        const result = yield* tokenCipher.encrypt(token)
 
         deepStrictEqual(typeof result.encryptedData, "string")
         deepStrictEqual(typeof result.iv, "string")
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should handle long strings", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const longString = "a".repeat(1000)
         const token = Redacted.make(longString)
 
-        const result = yield* tokenEncryption.encryptToken(token)
+        const result = yield* tokenCipher.encrypt(token)
 
         deepStrictEqual(typeof result.encryptedData, "string")
         deepStrictEqual(typeof result.iv, "string")
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
   })
 
   describe("decryptToken", () => {
     it.effect("should correctly decrypt an encrypted token", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const originalToken = Redacted.make("my-secret-token")
 
-        const encrypted = yield* tokenEncryption.encryptToken(originalToken)
-        const decrypted = yield* tokenEncryption.decryptToken(encrypted.encryptedData, encrypted.iv)
+        const encrypted = yield* tokenCipher.encrypt(originalToken)
+        const decrypted = yield* tokenCipher.decrypt(encrypted.encryptedData, encrypted.iv)
 
         deepStrictEqual(decrypted, Redacted.value(originalToken))
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should correctly handle empty strings", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const originalToken = Redacted.make("")
 
-        const encrypted = yield* tokenEncryption.encryptToken(originalToken)
-        const decrypted = yield* tokenEncryption.decryptToken(encrypted.encryptedData, encrypted.iv)
+        const encrypted = yield* tokenCipher.encrypt(originalToken)
+        const decrypted = yield* tokenCipher.decrypt(encrypted.encryptedData, encrypted.iv)
 
         deepStrictEqual(decrypted, "")
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should correctly handle long strings", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const longString = "a".repeat(1000)
         const originalToken = Redacted.make(longString)
 
-        const encrypted = yield* tokenEncryption.encryptToken(originalToken)
-        const decrypted = yield* tokenEncryption.decryptToken(encrypted.encryptedData, encrypted.iv)
+        const encrypted = yield* tokenCipher.encrypt(originalToken)
+        const decrypted = yield* tokenCipher.decrypt(encrypted.encryptedData, encrypted.iv)
 
         deepStrictEqual(decrypted, longString)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should fail with invalid IV", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const originalToken = Redacted.make("my-secret-token")
-        const encrypted = yield* tokenEncryption.encryptToken(originalToken)
+        const encrypted = yield* tokenCipher.encrypt(originalToken)
 
         const invalidIv = Buffer.from("invalid-iv-here").toString("base64")
 
-        const result = yield* tokenEncryption
-          .decryptToken(encrypted.encryptedData, invalidIv)
+        const result = yield* tokenCipher
+          .decrypt(encrypted.encryptedData, invalidIv)
           .pipe(Effect.exit)
 
         deepStrictEqual(Exit.isFailure(result), true)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should fail with invalid encrypted data", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const originalToken = Redacted.make("my-secret-token")
-        const encrypted = yield* tokenEncryption.encryptToken(originalToken)
+        const encrypted = yield* tokenCipher.encrypt(originalToken)
 
         const invalidData = Buffer.from("invalid-data").toString("base64")
 
-        const result = yield* tokenEncryption
-          .decryptToken(invalidData, encrypted.iv)
-          .pipe(Effect.exit)
+        const result = yield* tokenCipher.decrypt(invalidData, encrypted.iv).pipe(Effect.exit)
 
         deepStrictEqual(Exit.isFailure(result), true)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should fail with mismatched IV and encrypted data", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const token1 = Redacted.make("first-token")
         const token2 = Redacted.make("second-token")
 
-        const encrypted1 = yield* tokenEncryption.encryptToken(token1)
-        const encrypted2 = yield* tokenEncryption.encryptToken(token2)
+        const encrypted1 = yield* tokenCipher.encrypt(token1)
+        const encrypted2 = yield* tokenCipher.encrypt(token2)
 
-        const result = yield* tokenEncryption
-          .decryptToken(encrypted1.encryptedData, encrypted2.iv)
+        const result = yield* tokenCipher
+          .decrypt(encrypted1.encryptedData, encrypted2.iv)
           .pipe(Effect.exit)
 
         deepStrictEqual(Exit.isFailure(result), true)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
   })
 
   describe("encryption properties", () => {
     it.effect("should produce different ciphertexts for different plaintexts", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const token1 = Redacted.make("first-token")
         const token2 = Redacted.make("second-token")
 
-        const encrypted1 = yield* tokenEncryption.encryptToken(token1)
-        const encrypted2 = yield* tokenEncryption.encryptToken(token2)
+        const encrypted1 = yield* tokenCipher.encrypt(token1)
+        const encrypted2 = yield* tokenCipher.encrypt(token2)
 
         deepStrictEqual(encrypted1.encryptedData !== encrypted2.encryptedData, true)
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
 
     it.effect("should maintain data integrity through encryption and decryption cycles", () =>
       Effect.gen(function* () {
-        const tokenEncryption = yield* TokenEncryption.TokenEncryption
+        const tokenCipher = yield* TokenCipher.TokenCipher
         const testCases = [
           "simple token",
           "",
@@ -184,15 +182,12 @@ describe("TokenEncryption", () => {
         ].map(Redacted.make)
 
         for (const token of testCases) {
-          const encrypted = yield* tokenEncryption.encryptToken(token)
-          const decrypted = yield* tokenEncryption.decryptToken(
-            encrypted.encryptedData,
-            encrypted.iv,
-          )
+          const encrypted = yield* tokenCipher.encrypt(token)
+          const decrypted = yield* tokenCipher.decrypt(encrypted.encryptedData, encrypted.iv)
 
           deepStrictEqual(decrypted, Redacted.value(token))
         }
-      }).pipe(Effect.provide(TestEncryption)),
+      }).pipe(Effect.provide(TestCipher)),
     )
   })
 
@@ -204,7 +199,7 @@ describe("TokenEncryption", () => {
           name: Schema.String,
         })
 
-        const schema = TokenEncryption.makeSchema({
+        const schema = TokenCipher.makeSchema({
           schema: TestData,
           encryptionKey: TEST_KEY,
           algorithm: "aes-256-gcm",
@@ -232,7 +227,7 @@ describe("TokenEncryption", () => {
           date: Schema.String,
         })
 
-        const schema = TokenEncryption.makeSchema({
+        const schema = TokenCipher.makeSchema({
           schema: ComplexData,
           encryptionKey: TEST_KEY,
           algorithm: "aes-256-gcm",
@@ -261,14 +256,14 @@ describe("TokenEncryption", () => {
           id: Schema.Number,
         })
 
-        const schema = TokenEncryption.makeSchema({
+        const schema = TokenCipher.makeSchema({
           schema: TestData,
           encryptionKey: TEST_KEY,
           algorithm: "aes-256-gcm",
         })
 
         const result = yield* Schema.decode(schema)(
-          "invalid-data|invalid-iv" as typeof TokenEncryption.EncryptedTokenSchema.Encoded,
+          "invalid-data|invalid-iv" as typeof TokenCipher.EncryptedTokenSchema.Encoded,
         ).pipe(Effect.exit)
 
         deepStrictEqual(Exit.isFailure(result), true)
@@ -282,12 +277,12 @@ describe("TokenEncryption", () => {
         })
 
         const differentKey = Redacted.make("different-key-32-chars-exactly-123")
-        const schema1 = TokenEncryption.makeSchema({
+        const schema1 = TokenCipher.makeSchema({
           schema: TestData,
           encryptionKey: TEST_KEY,
           algorithm: "aes-256-gcm",
         })
-        const schema2 = TokenEncryption.makeSchema({
+        const schema2 = TokenCipher.makeSchema({
           schema: TestData,
           encryptionKey: differentKey,
           algorithm: "aes-256-gcm",
@@ -305,7 +300,7 @@ describe("TokenEncryption", () => {
     it.effect("should handle empty objects", () =>
       Effect.gen(function* () {
         const EmptyStruct = Schema.Struct({})
-        const schema = TokenEncryption.makeSchema({
+        const schema = TokenCipher.makeSchema({
           schema: EmptyStruct,
           encryptionKey: TEST_KEY,
           algorithm: "aes-256-gcm",
@@ -328,7 +323,7 @@ describe("TokenEncryption", () => {
           id: Schema.Number,
         })
 
-        const schema = TokenEncryption.makeSchema({
+        const schema = TokenCipher.makeSchema({
           schema: TestData,
           encryptionKey: TEST_KEY,
           algorithm: "aes-128-gcm",

@@ -15,7 +15,7 @@ export const make = (encryptionKey: Redacted.Redacted, algorithm: crypto.CipherG
     .subarray(0, keyLength)
 
   return {
-    encryptToken: (token: Redacted.Redacted) =>
+    encrypt: (token: Redacted.Redacted) =>
       Effect.sync(() => {
         const iv = crypto.randomBytes(16)
         const cipher = crypto.createCipheriv(algorithm, normalizedKey, iv)
@@ -31,9 +31,9 @@ export const make = (encryptionKey: Redacted.Redacted, algorithm: crypto.CipherG
           encryptedData: Buffer.concat([encrypted, authTag]).toString("base64"),
           iv: iv.toString("base64"),
         }
-      }).pipe(Effect.withSpan("TokenEncryption.encryptToken")),
+      }).pipe(Effect.withSpan("TokenCipher.encrypt")),
 
-    decryptToken: (encryptedData: string, iv: string) =>
+    decrypt: (encryptedData: string, iv: string) =>
       Effect.sync(() => {
         const decipher = crypto.createDecipheriv(
           algorithm,
@@ -48,7 +48,7 @@ export const make = (encryptionKey: Redacted.Redacted, algorithm: crypto.CipherG
         decipher.setAuthTag(authTag)
 
         return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8")
-      }).pipe(Effect.withSpan("TokenEncryption.decryptToken")),
+      }).pipe(Effect.withSpan("TokenCipher.decrypt")),
   }
 }
 
@@ -78,15 +78,15 @@ export const makeSchema = <A, I, R>(opts: {
   encryptionKey: Redacted.Redacted
   algorithm: crypto.CipherGCMTypes
 }) => {
-  const encryption = make(opts.encryptionKey, opts.algorithm)
+  const cipher = make(opts.encryptionKey, opts.algorithm)
 
   const JsonSchema = Schema.Redacted(Schema.parseJson(opts.schema))
 
   return Schema.transformOrFail(EncryptedTokenSchema, JsonSchema, {
     strict: true,
     decode: ({ encryptedData, iv }, _, ast) =>
-      encryption
-        .decryptToken(encryptedData, iv)
+      cipher
+        .decrypt(encryptedData, iv)
         .pipe(
           Effect.catchAll(() =>
             Effect.fail(
@@ -95,16 +95,16 @@ export const makeSchema = <A, I, R>(opts: {
           ),
         ),
     encode: (jsonString) =>
-      Effect.map(encryption.encryptToken(Redacted.make(jsonString)), ({ encryptedData, iv }) => ({
+      Effect.map(cipher.encrypt(Redacted.make(jsonString)), ({ encryptedData, iv }) => ({
         encryptedData,
         iv,
       })),
   })
 }
 
-export class TokenEncryption extends Effect.Tag("TokenEncryption")<
-  TokenEncryption,
+export class TokenCipher extends Effect.Tag("TokenCipher")<
+  TokenCipher,
   ReturnType<typeof make>
 >() {}
 
-export const layer = flow(make, Layer.succeed(TokenEncryption))
+export const layer = flow(make, Layer.succeed(TokenCipher))
