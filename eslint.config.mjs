@@ -21,6 +21,17 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
+const noRestrictedImportsPaths = [
+  {
+    name: "effect",
+    message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
+  },
+  {
+    name: "@effect/platform",
+    message: "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
+  },
+];
+
 export default [
   {
     ignores: [
@@ -39,18 +50,17 @@ export default [
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@effect/recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
   ),
   {
     plugins: {
       import: fixupPluginRules(_import),
-      react,
-      "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "sort-destructure-keys": sortDestructureKeys,
       codegen,
       "simple-import-sort": simpleImportSort,
+      react,
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
     },
 
     languageOptions: {
@@ -78,7 +88,6 @@ export default [
           alwaysTryTypes: true,
         },
       },
-
       react: {
         version: "detect",
       },
@@ -115,21 +124,11 @@ export default [
         {
           patterns: [
             {
-              group: ["../*"],
+              group: ["../../*"],
               message: "Use absolute imports instead of relative parent imports (../)",
             },
           ],
-          paths: [
-            {
-              name: "effect",
-              message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
-            },
-            {
-              name: "@effect/platform",
-              message:
-                "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
-            },
-          ],
+          paths: noRestrictedImportsPaths,
         },
       ],
 
@@ -289,7 +288,12 @@ export default [
       "@typescript-eslint/no-use-before-define": "off",
       "@typescript-eslint/no-namespace": "off",
 
-      // React
+      "@effect/dprint": "off",
+    },
+  },
+  {
+    files: ["packages/client/**/*.{ts,tsx,js,jsx}"],
+    rules: {
       "react/function-component-definition": [
         "warn",
         {
@@ -297,31 +301,41 @@ export default [
           unnamedComponents: "arrow-function",
         },
       ],
-      "react/prop-types": "off",
+      "react/display-name": "error",
       "react/jsx-key": "error",
+      "react/jsx-no-comment-textnodes": "error",
+      "react/jsx-no-duplicate-props": "error",
       "react/jsx-no-target-blank": "error",
       "react/jsx-no-useless-fragment": "warn",
+      "react/jsx-uses-react": "error",
+      "react/jsx-uses-vars": "error",
+      "react/no-children-prop": "off",
+      "react/no-danger-with-children": "error",
+      "react/no-deprecated": "error",
+      "react/no-direct-mutation-state": "error",
+      "react/no-find-dom-node": "error",
+      "react/no-is-mounted": "error",
+      "react/no-render-return-value": "error",
+      "react/no-string-refs": "error",
+      "react/no-unescaped-entities": "error",
+      "react/no-unknown-property": "error",
+      "react/no-unsafe": "error",
+      "react/require-render-return": "error",
+      "react/prop-types": "off",
       "react/no-array-index-key": "warn",
-      "react/no-deprecated": "warn",
       "react/no-unused-state": "error",
       "react/button-has-type": "error",
-      "react/display-name": "error",
       "react/hook-use-state": "error",
       "react/jsx-fragments": ["error", "element"],
-      "react/no-children-prop": "off",
       "react/react-in-jsx-scope": "off",
       "react/jsx-curly-brace-presence": "error",
       "react/jsx-boolean-value": "error",
-      "react/no-direct-mutation-state": "error",
       "react/self-closing-comp": "error",
       "react/no-unknown-property": "error",
-
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
       "react-hooks/rules-of-hooks": "warn",
       "react-hooks/exhaustive-deps": "warn",
-
-      "@effect/dprint": "off",
     },
   },
   {
@@ -330,17 +344,7 @@ export default [
       "no-restricted-imports": [
         "error",
         {
-          paths: [
-            {
-              name: "effect",
-              message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
-            },
-            {
-              name: "@effect/platform",
-              message:
-                "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
-            },
-          ],
+          paths: noRestrictedImportsPaths,
         },
       ],
     },

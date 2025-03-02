@@ -311,3 +311,14 @@ export const fromKey: <const K extends string>(
   <const K extends string>(key: K) =>
   <A, I, R>(self: Schema.Schema<A, I, R>) =>
     self.pipe(Schema.propertySignature, Schema.fromKey(key));
+
+/**
+ * Reverses a schema, i.e., swaps the encoded and decoded types.
+ *
+ * @category schema
+ */
+export const reverseSchema = <A, I, R>(schema: Schema.Schema<A, I, R>): Schema.Schema<I, A, R> =>
+  Schema.transformOrFail(Schema.typeSchema(schema), Schema.encodedSchema(schema), {
+    decode: ParseResult.encode(schema),
+    encode: ParseResult.decode(schema),
+  });

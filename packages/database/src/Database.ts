@@ -1,4 +1,6 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { type ExtractTablesWithRelations } from "drizzle-orm";
+import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
+import { type PgTransaction } from "drizzle-orm/pg-core";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -10,10 +12,28 @@ import * as Schedule from "effect/Schedule";
 import * as pg from "pg";
 import * as DbSchema from "./DbSchema.js";
 
+type TransactionClient = PgTransaction<
+  NodePgQueryResultHKT,
+  typeof DbSchema,
+  ExtractTablesWithRelations<typeof DbSchema>
+>;
+
+type Client = NodePgDatabase<typeof DbSchema> & {
+  $client: pg.Pool;
+};
+
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   readonly type: "unique_violation" | "foreign_key_violation" | "connection_error";
   readonly cause: pg.DatabaseError;
-}> {}
+}> {
+  public override toString() {
+    return `DatabaseError: ${this.cause.message}`;
+  }
+
+  public get message() {
+    return this.cause.message;
+  }
+}
 
 const matchPgError = (error: unknown) => {
   if (error instanceof pg.DatabaseError) {
@@ -95,7 +115,7 @@ const makeService = (config: Config) =>
 
     const db = drizzle(pool, { schema: DbSchema });
 
-    const execute = Effect.fn(<T>(fn: (client: typeof db) => Promise<T>) =>
+    const execute = Effect.fn(<T>(fn: (client: Client) => Promise<T>) =>
       Effect.tryPromise({
         try: () => fn(db),
         catch: (cause) => {
@@ -111,17 +131,15 @@ const makeService = (config: Config) =>
     const transaction = Effect.fn("Database.transaction")(
       <T, E, R>(
         execute: (
-          tx: <U>(
-            fn: (client: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<U>,
-          ) => Effect.Effect<U, DatabaseError>,
+          tx: <U>(fn: (client: TransactionClient) => Promise<U>) => Effect.Effect<U, DatabaseError>,
         ) => Effect.Effect<T, E, R>,
       ) =>
         Effect.runtime<R>().pipe(
           Effect.map((runtime) => Runtime.runPromiseExit(runtime)),
           Effect.flatMap((runPromiseExit) =>
             Effect.async<T, DatabaseError | E, R>((resume) => {
-              db.transaction(async (tx) => {
-                const txWrapper = (fn: (client: typeof tx) => Promise<any>) =>
+              db.transaction(async (tx: TransactionClient) => {
+                const txWrapper = (fn: (client: TransactionClient) => Promise<any>) =>
                   Effect.tryPromise({
                     try: () => fn(tx),
                     catch: (cause) => {
@@ -155,10 +173,27 @@ const makeService = (config: Config) =>
         ),
     );
 
+    const makeQuery = <Input, A, E, R>(
+      queryFn: (
+        execute: <T>(
+          fn: (client: Client | TransactionClient) => Promise<T>,
+        ) => Effect.Effect<T, DatabaseError>,
+        input: Input,
+      ) => Effect.Effect<A, E, R>,
+    ) => {
+      return (
+        input: Input,
+        tx?: <T>(fn: (client: TransactionClient) => Promise<T>) => Effect.Effect<T, DatabaseError>,
+      ) => {
+        return queryFn(tx ?? execute, input);
+      };
+    };
+
     return {
       execute,
       transaction,
       setupConnectionListeners,
+      makeQuery,
     } as const;
   });
 
@@ -167,7 +202,3 @@ type Shape = Effect.Effect.Success<ReturnType<typeof makeService>>;
 export class Database extends Effect.Tag("Database")<Database, Shape>() {}
 
 export const layer = (config: Config) => Layer.scoped(Database, makeService(config));
-
-export type Transaction = Parameters<Parameters<Shape["transaction"]>[0]>[0];
-export type TransactionClient = Parameters<Parameters<Transaction>[0]>[0];
-export type Client = Parameters<Parameters<Shape["execute"]>[0]>[0];

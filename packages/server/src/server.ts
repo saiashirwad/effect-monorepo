@@ -4,6 +4,7 @@ import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { Database } from "@org/database";
 import * as dotenv from "dotenv";
 import * as Cause from "effect/Cause";
 import * as ConfigError from "effect/ConfigError";
@@ -11,9 +12,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
 import { createServer } from "node:http";
-import { Database } from "../../database/src/Database.js";
 import { Api } from "./api.js";
-import { DatabaseLive } from "./common/database.js";
 import { EnvVars } from "./common/env-vars.js";
 import { MeLive } from "./public/me/me-live.js";
 import { UserAuthMiddlewareLive } from "./public/middlewares/auth-middleware-live.js";
@@ -26,6 +25,17 @@ const ApiLive = HttpApiBuilder.api(Api).pipe(
   Layer.provide([MeLive]),
   Layer.provide([UserAuthMiddlewareLive]),
 );
+
+const DatabaseLive = Layer.unwrapEffect(
+  EnvVars.pipe(
+    Effect.map((envVars) =>
+      Database.layer({
+        url: envVars.DATABASE_URL,
+        ssl: envVars.ENV === "prod",
+      }),
+    ),
+  ),
+).pipe(Layer.provide(EnvVars.Default));
 
 const NodeSdkLive = Layer.unwrapEffect(
   EnvVars.OTLP_URL.pipe(
@@ -60,7 +70,7 @@ const CorsLive = Layer.unwrapEffect(
 const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(CorsLive),
   Layer.provide(ApiLive),
-  Layer.merge(Layer.effectDiscard(Database.pipe(Effect.tap((db) => db.setupConnectionListeners)))),
+  Layer.merge(Layer.effectDiscard(Database.Database.use((db) => db.setupConnectionListeners))),
   Layer.provide(DatabaseLive),
   Layer.provide(NodeSdkLive),
   Layer.provide(EnvVars.Default),

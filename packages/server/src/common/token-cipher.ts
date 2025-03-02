@@ -6,7 +6,19 @@ import * as Redacted from "effect/Redacted";
 import * as Schema from "effect/Schema";
 import * as crypto from "node:crypto";
 
-export const make = (encryptionKey: Redacted.Redacted, algorithm: crypto.CipherGCMTypes) => {
+export const EncryptedToken = Schema.String.pipe(Schema.brand("encryptedToken"));
+export type EncryptedToken = typeof EncryptedToken.Type;
+
+export const EncryptedTokenEncoded = Schema.encodedSchema(EncryptedToken);
+export type EncryptedTokenEncoded = typeof EncryptedTokenEncoded.Type;
+
+type MakeOpts = {
+  encryptionKey: Redacted.Redacted;
+  algorithm: crypto.CipherGCMTypes;
+};
+
+const make = (opts: MakeOpts) => {
+  const { algorithm, encryptionKey } = opts;
   const keyLength = algorithm.startsWith("aes-128") ? 16 : 32;
   const normalizedKey = crypto
     .createHash("sha256")
@@ -27,79 +39,25 @@ export const make = (encryptionKey: Redacted.Redacted, algorithm: crypto.CipherG
 
         const authTag = cipher.getAuthTag();
 
-        return {
-          encryptedData: Buffer.concat([encrypted, authTag]).toString("base64"),
-          iv: iv.toString("base64"),
-        };
+        const consolidatedBuffer = Buffer.concat([iv, encrypted, authTag]);
+        return EncryptedToken.make(consolidatedBuffer.toString("base64"));
       }).pipe(Effect.withSpan("TokenCipher.encrypt")),
 
-    decrypt: (encryptedData: string, iv: string) =>
+    decrypt: (consolidatedData: string) =>
       Effect.sync(() => {
-        const decipher = crypto.createDecipheriv(
-          algorithm,
-          normalizedKey,
-          Buffer.from(iv, "base64"),
-        );
+        const buffer = Buffer.from(consolidatedData, "base64");
 
-        const encryptedBuffer = Buffer.from(encryptedData, "base64");
-        const authTag = encryptedBuffer.subarray(-16);
-        const data = encryptedBuffer.subarray(0, -16);
+        const iv = buffer.subarray(0, 16);
+        const authTag = buffer.subarray(buffer.length - 16);
+        const encryptedData = buffer.subarray(16, buffer.length - 16);
+
+        const decipher = crypto.createDecipheriv(algorithm, normalizedKey, iv);
 
         decipher.setAuthTag(authTag);
 
-        return Buffer.concat([decipher.update(data), decipher.final()]).toString("utf8");
+        return Buffer.concat([decipher.update(encryptedData), decipher.final()]).toString("utf8");
       }).pipe(Effect.withSpan("TokenCipher.decrypt")),
   };
-};
-
-export const EncryptedTokenSchema = Schema.TemplateLiteral(
-  Schema.String.pipe(Schema.brand("encryptedData")),
-  Schema.Literal("|"),
-  Schema.String.pipe(Schema.brand("iv")),
-).pipe(
-  Schema.transform(
-    Schema.Struct({
-      encryptedData: Schema.String,
-      iv: Schema.String,
-    }),
-    {
-      strict: false,
-      decode: (value) => {
-        const [encryptedData, iv] = value.split("|");
-        return { encryptedData, iv };
-      },
-      encode: ({ encryptedData, iv }) => `${encryptedData}|${iv}`,
-    },
-  ),
-);
-
-export const makeSchema = <A, I, R>(opts: {
-  schema: Schema.Schema<A, I, R>;
-  encryptionKey: Redacted.Redacted;
-  algorithm: crypto.CipherGCMTypes;
-}) => {
-  const cipher = make(opts.encryptionKey, opts.algorithm);
-
-  const JsonSchema = Schema.Redacted(Schema.parseJson(opts.schema));
-
-  return Schema.transformOrFail(EncryptedTokenSchema, JsonSchema, {
-    strict: true,
-    decode: ({ encryptedData, iv }, _, ast) =>
-      cipher
-        .decrypt(encryptedData, iv)
-        .pipe(
-          Effect.catchAll(() =>
-            Effect.fail(
-              new ParseResult.Type(ast, { encryptedData, iv }, "Failed to decrypt token"),
-            ),
-          ),
-        ),
-    encode: (jsonString) =>
-      Effect.map(cipher.encrypt(Redacted.make(jsonString)), ({ encryptedData, iv }) => ({
-        encryptedData,
-        iv,
-      })),
-  });
 };
 
 export class TokenCipher extends Effect.Tag("TokenCipher")<
@@ -108,3 +66,31 @@ export class TokenCipher extends Effect.Tag("TokenCipher")<
 >() {}
 
 export const layer = flow(make, Layer.succeed(TokenCipher));
+
+const makeSchemaTransform = <A, I, R>(
+  schema: Schema.Schema<A, I, R>,
+  cipher: ReturnType<typeof make>,
+) => {
+  const JsonSchema = Schema.Redacted(Schema.parseJson(schema));
+  return Schema.transformOrFail(EncryptedToken, JsonSchema, {
+    strict: true,
+    decode: (encryptedToken, _, ast) =>
+      cipher
+        .decrypt(encryptedToken)
+        .pipe(
+          Effect.catchAll(() =>
+            Effect.fail(new ParseResult.Type(ast, encryptedToken, "Failed to decrypt token")),
+          ),
+        ),
+    encode: (jsonString) => cipher.encrypt(Redacted.make(jsonString)),
+  });
+};
+
+export const makeSchema = <A, I, R>(schema: Schema.Schema<A, I, R>, opts: MakeOpts) =>
+  Effect.sync(() => {
+    const cipher = make(opts);
+    return makeSchemaTransform(schema, cipher);
+  });
+
+export const makeSchemaWithContext = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
+  TokenCipher.use((cipher) => makeSchemaTransform(schema, cipher));

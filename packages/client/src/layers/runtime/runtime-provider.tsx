@@ -1,5 +1,5 @@
 import { type LiveManagedRuntime } from "@/layers/live-layer";
-import { constant } from "effect/Function";
+import { constVoid } from "effect/Function";
 import React from "react";
 import { RuntimeContext } from "./runtime-context";
 
@@ -12,7 +12,7 @@ export const RuntimeProvider: React.FC<{
   React.useEffect(() => {
     if (!mountRef.current) {
       mountRef.current = true;
-      return constant(void 0);
+      return constVoid;
     }
 
     return () => {
