@@ -1,5 +1,5 @@
-import { Unauthorized } from "@effect/platform/HttpApiError";
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
+import * as CustomHttpApiError from "@org/domain/CustomHttpApiError";
 import { Permission, UserAuthMiddleware } from "@org/domain/Policy";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,7 +11,7 @@ const Headers = Schema.Struct({
 });
 
 const validateTokenFormat = (token: string) =>
-  token.length >= 32 ? Effect.succeed(token) : Effect.fail(new Unauthorized());
+  token.length >= 32 ? Effect.succeed(token) : Effect.fail(new CustomHttpApiError.Unauthorized());
 
 const verifyToken = (token: string) =>
   Effect.succeed({
@@ -28,7 +28,7 @@ const make = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
   Effect.sync(() => {
     return Effect.gen(function* () {
       const headers = yield* HttpServerRequest.schemaHeaders(Headers).pipe(
-        Effect.mapError(() => new Unauthorized()),
+        Effect.mapError(() => new CustomHttpApiError.Unauthorized()),
       );
 
       const token = headers.authorization.slice(7);
@@ -38,7 +38,7 @@ const make = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
 
       return yield* Schema.decodeUnknown(schema)(authResponse).pipe(
         Effect.withSpan("decode"),
-        Effect.mapError(() => new Unauthorized()),
+        Effect.mapError(() => new CustomHttpApiError.Unauthorized()),
       );
     }).pipe(Effect.withSpan("auth.middleware"));
   });
