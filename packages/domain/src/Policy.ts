@@ -42,71 +42,7 @@ export class UserAuthMiddleware extends HttpApiMiddleware.Tag<UserAuthMiddleware
 ) {}
 
 // ==========================================
-// ACL Guards
-// ==========================================
-
-/**
- * Protects an effect by checking if the current user has the required permission.
- * If the user doesn't have the permission, fails with Forbidden error.
- */
-export const withPermission = (requiredPermission: Permission) => {
-  return <A, E, R>(
-    self: Effect.Effect<A, E, R>,
-  ): Effect.Effect<A, E | CustomHttpApiError.Forbidden, R | CurrentUser> =>
-    Effect.zipRight(
-      CurrentUser.pipe(
-        Effect.flatMap((user) =>
-          user.permissions.has(requiredPermission)
-            ? Effect.void
-            : new CustomHttpApiError.Forbidden(),
-        ),
-      ),
-      self,
-    );
-};
-
-/**
- * Protects an effect by checking if the current user has any of the required permissions.
- * If the user doesn't have any of the permissions, fails with Forbidden error.
- */
-export const withPermissionAny = (requiredPermissions: NonEmptyReadonlyArray<Permission>) => {
-  return <A, E, R>(
-    self: Effect.Effect<A, E, R>,
-  ): Effect.Effect<A, E | CustomHttpApiError.Forbidden, R | CurrentUser> =>
-    Effect.zipRight(
-      CurrentUser.pipe(
-        Effect.flatMap((user) =>
-          requiredPermissions.some((permission) => user.permissions.has(permission))
-            ? Effect.void
-            : new CustomHttpApiError.Forbidden(),
-        ),
-      ),
-      self,
-    );
-};
-
-/**
- * Protects an effect by checking if the current user has all the required permissions.
- * If the user doesn't have all permissions, fails with Forbidden error.
- */
-export const withPermissionAll = (requiredPermissions: NonEmptyReadonlyArray<Permission>) => {
-  return <A, E, R>(
-    self: Effect.Effect<A, E, R>,
-  ): Effect.Effect<A, E | CustomHttpApiError.Forbidden, R | CurrentUser> =>
-    Effect.zipRight(
-      CurrentUser.pipe(
-        Effect.flatMap((user) =>
-          requiredPermissions.every((permission) => user.permissions.has(permission))
-            ? Effect.void
-            : new CustomHttpApiError.Forbidden(),
-        ),
-      ),
-      self,
-    );
-};
-
-// ==========================================
-// ABAC Policy Implementation
+// Policy
 // ==========================================
 
 /**
@@ -114,7 +50,11 @@ export const withPermissionAll = (requiredPermissions: NonEmptyReadonlyArray<Per
  * A policy is a function that returns Effect.void if access is granted,
  * or fails with a CustomHttpApiError.Forbidden if access is denied.
  */
-type Policy<E, R> = Effect.Effect<void, CustomHttpApiError.Forbidden | E, CurrentUser | R>;
+type Policy<E = never, R = never> = Effect.Effect<
+  void,
+  CustomHttpApiError.Forbidden | E,
+  CurrentUser | R
+>;
 
 /**
  * Creates a policy from a predicate function that evaluates the current user.
@@ -135,28 +75,29 @@ export const policy = <E, R>(
  * If the predicate returns false, the effect will fail with Forbidden.
  */
 export const withPolicy =
-  <E, R>(predicate: (user: CurrentUser["Type"]) => Effect.Effect<boolean, E, R>) =>
+  <E, R>(policy: Policy<E, R>) =>
   <A, E2, R2>(self: Effect.Effect<A, E2, R2>) =>
-    Effect.zipRight(policy(predicate), self);
+    Effect.zipRight(policy, self);
 
 /**
- * Combines multiple policies with AND semantics - all must pass.
+ * Composes multiple policies with AND semantics - all policies must pass.
+ * Returns a new policy that succeeds only if all the given policies succeed.
  */
-export const withPolicyAll =
-  <A, E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>) =>
-  (self: Effect.Effect<A, E, R>) =>
-    Effect.zipRight(
-      Effect.all(policies, {
-        concurrency: 1,
-        discard: true,
-      }),
-      self,
-    );
+export const all = <E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
+  Effect.all(policies, {
+    concurrency: 1,
+    discard: true,
+  });
 
 /**
- * Combines multiple policies with OR semantics - at least one must pass.
+ * Composes multiple policies with OR semantics - at least one policy must pass.
+ * Returns a new policy that succeeds if any of the given policies succeed.
  */
-export const withPolicyAny =
-  <A, E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>) =>
-  (self: Effect.Effect<A, E, R>) =>
-    Effect.zipRight(Effect.firstSuccessOf(policies), self);
+export const any = <E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
+  Effect.firstSuccessOf(policies);
+
+/**
+ * Creates a policy that checks if the current user has a specific permission.
+ */
+export const permission = (requiredPermission: Permission): Policy =>
+  policy((user) => Effect.succeed(user.permissions.has(requiredPermission)));
