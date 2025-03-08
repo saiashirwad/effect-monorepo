@@ -9,12 +9,11 @@
     "url": "https://github.com/lucas-barake/effect-monorepo.git",
     "directory": "packages/server"
   },
-  "main": "build/esm/server.js",
   "scripts": {
     "check": "tsc -b tsconfig.json",
     "test": "vitest",
     "coverage": "vitest --coverage",
-    "clean": "rm -rf build",
+    "clean": "rm -rf build .tsbuildinfo",
     "prebuild": "npm run clean",
     "build": "tsc -b tsconfig.build.json",
     "dev": "bun --watch src/server.ts",

@@ -1,10 +1,10 @@
 import * as HttpServerRequest from "@effect/platform/HttpServerRequest";
 import * as CustomHttpApiError from "@org/domain/CustomHttpApiError";
+import { UserId } from "@org/domain/EntityIds";
 import { Permission, UserAuthMiddleware } from "@org/domain/Policy";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
-import { UserId } from "../../../../domain/src/EntityIds.js";
 
 const Headers = Schema.Struct({
   authorization: Schema.NonEmptyTrimmedString.pipe(Schema.startsWith("Bearer ")),
