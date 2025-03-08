@@ -27,7 +27,9 @@
     "format": "prettier --write \"**/*.{js,ts,mjs,jsx,tsx,json,md,css,html,yaml,yml,mdx}\"",
     "format:check": "prettier --check \"**/*.{js,ts,mjs,jsx,tsx,json,md,css,html,yaml,yml,mdx}\"",
     "coverage": "vitest --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev:client": "pnpm --filter client dev",
+    "dev:server": "pnpm --filter server dev"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.9",
