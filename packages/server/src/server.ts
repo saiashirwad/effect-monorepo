@@ -4,7 +4,7 @@ import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { Database } from "@org/database";
+import { Database } from "@org/database/index";
 import * as dotenv from "dotenv";
 import * as Cause from "effect/Cause";
 import * as ConfigError from "effect/ConfigError";

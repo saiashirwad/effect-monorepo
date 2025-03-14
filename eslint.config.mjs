@@ -13,6 +13,9 @@ import sortDestructureKeys from "eslint-plugin-sort-destructure-keys";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import noEffectNamespaceImports from "./scripts/eslint-rules/no-effect-namespace-imports.mjs";
+import noRelativeImportOutsidePackage from "./scripts/eslint-rules/no-relative-import-outside-package.mjs";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
@@ -20,17 +23,6 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
 });
-
-const noRestrictedImportsPaths = [
-  {
-    name: "effect",
-    message: 'Use path imports instead (e.g., import * as Effect from "effect/Effect")',
-  },
-  {
-    name: "@effect/platform",
-    message: "Use path imports instead (e.g., import * as HttpApi from '@effect/platform/HttpApi')",
-  },
-];
 
 export default [
   {
@@ -60,7 +52,18 @@ export default [
       "simple-import-sort": simpleImportSort,
       react,
       "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
+
+      "no-relative-import-outside-package": {
+        rules: {
+          "no-relative-import-outside-package": noRelativeImportOutsidePackage,
+        },
+      },
+
+      "no-effect-namespace-imports": {
+        rules: {
+          "no-effect-namespace-imports": noEffectNamespaceImports,
+        },
+      },
     },
 
     languageOptions: {
@@ -72,7 +75,7 @@ export default [
           jsx: true,
         },
         projectService: {
-          allowDefaultProject: ["*.js", "*.mjs", "scripts/*.mjs"],
+          allowDefaultProject: ["*.js", "*.mjs", "scripts/*.mjs", "scripts/eslint-rules/*.mjs"],
         },
         tsconfigRootDir: process.cwd(),
       },
@@ -102,6 +105,9 @@ export default [
       "sort-imports": "off",
       "no-console": "error",
 
+      "no-relative-import-outside-package/no-relative-import-outside-package": "error",
+      "no-effect-namespace-imports/no-effect-namespace-imports": "error",
+
       "no-restricted-syntax": [
         "error",
         {
@@ -116,19 +122,6 @@ export default [
           selector:
             "ImportDeclaration[source.value='lucide-react'] ImportSpecifier > Identifier[name!=/Icon$/]",
           message: "Lucide imports must end with 'Icon' (e.g., 'ClockIcon' instead of 'Clock')",
-        },
-      ],
-
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["../../*"],
-              message: "Use absolute imports instead of relative parent imports (../)",
-            },
-          ],
-          paths: noRestrictedImportsPaths,
         },
       ],
 
@@ -331,7 +324,6 @@ export default [
       "react/jsx-curly-brace-presence": "error",
       "react/jsx-boolean-value": "error",
       "react/self-closing-comp": "error",
-      "react/no-unknown-property": "error",
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
       "react-hooks/rules-of-hooks": "warn",
@@ -339,14 +331,25 @@ export default [
     },
   },
   {
-    files: ["packages/{server,domain}/**/*.{ts,tsx,js,jsx}"],
+    files: ["packages/client/**/*.{ts,tsx,js,jsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
         {
-          paths: noRestrictedImportsPaths,
+          patterns: [
+            {
+              group: ["../../*"],
+              message: "Use absolute imports instead of relative parent imports (../)",
+            },
+          ],
         },
       ],
+    },
+  },
+  {
+    files: ["packages/{server,domain,database}/**/*.{ts,tsx,js,jsx}"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
 ];
