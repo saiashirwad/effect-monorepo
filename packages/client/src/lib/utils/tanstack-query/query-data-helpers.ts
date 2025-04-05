@@ -1,10 +1,9 @@
 import { QueryClient } from "@/layers/common/query-client";
-import type { DeepMutable } from "@/lib/helper-types";
 import * as Effect from "effect/Effect";
 import * as mutative from "mutative";
 import { type QueryVariables } from "./effect-query";
 
-export type QueryDataUpdater<TData> = (draft: mutative.Draft<DeepMutable<TData>>) => void;
+export type QueryDataUpdater<TData> = (draft: mutative.Draft<TData>) => void;
 
 type QueryKey<
   Key extends string,
@@ -87,8 +86,8 @@ export function makeHelpers<Data, Variables = void>(
   const namespaceKey = (queryKey as () => readonly [string])()[0];
 
   type SetDataParams = Variables extends void
-    ? [(draft: mutative.Draft<DeepMutable<Data>>) => Data | void]
-    : [Variables, (draft: mutative.Draft<DeepMutable<Data>>) => Data | void];
+    ? [(draft: mutative.Draft<Data>) => Data | void]
+    : [Variables, (draft: mutative.Draft<Data>) => Data | void];
 
   type QueryParams = Variables extends void ? [] : [Variables];
 

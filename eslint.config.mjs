@@ -13,6 +13,7 @@ import sortDestructureKeys from "eslint-plugin-sort-destructure-keys";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import enforceReactNamespace from "./scripts/eslint-rules/enforce-react-namespace.mjs";
 import noEffectNamespaceImports from "./scripts/eslint-rules/no-effect-namespace-imports.mjs";
 import noRelativeImportOutsidePackage from "./scripts/eslint-rules/no-relative-import-outside-package.mjs";
 
@@ -41,7 +42,6 @@ export default [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@effect/recommended",
   ),
   {
     plugins: {
@@ -62,6 +62,12 @@ export default [
       "no-effect-namespace-imports": {
         rules: {
           "no-effect-namespace-imports": noEffectNamespaceImports,
+        },
+      },
+
+      "enforce-react-namespace": {
+        rules: {
+          "enforce-react-namespace": enforceReactNamespace,
         },
       },
     },
@@ -280,8 +286,6 @@ export default [
       "@typescript-eslint/no-array-constructor": "off",
       "@typescript-eslint/no-use-before-define": "off",
       "@typescript-eslint/no-namespace": "off",
-
-      "@effect/dprint": "off",
     },
   },
   {
@@ -344,6 +348,8 @@ export default [
           ],
         },
       ],
+
+      "enforce-react-namespace/enforce-react-namespace": "error",
     },
   },
   {

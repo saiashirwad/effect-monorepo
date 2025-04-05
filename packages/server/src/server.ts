@@ -6,8 +6,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { Database } from "@org/database/index";
 import * as dotenv from "dotenv";
-import * as Cause from "effect/Cause";
-import * as ConfigError from "effect/ConfigError";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
@@ -56,14 +55,14 @@ const NodeSdkLive = Layer.unwrapEffect(
 
 const CorsLive = Layer.unwrapEffect(
   EnvVars.pipe(
-    Effect.map((envVars) => {
-      return HttpApiBuilder.middlewareCors({
+    Effect.map((envVars) =>
+      HttpApiBuilder.middlewareCors({
         allowedOrigins: [envVars.ENV === "dev" ? "*" : envVars.APP_URL],
         allowedMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         allowedHeaders: ["Content-Type", "Authorization", "B3", "traceparent"],
         credentials: true,
-      });
-    }),
+      }),
+    ),
   ),
 );
 
@@ -79,14 +78,20 @@ const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
 
 Layer.launch(HttpLive).pipe(
   Effect.tapErrorCause(Effect.logError),
-  Effect.catchAllCause((cause) =>
-    Effect.fail(new Cause.UnknownException(cause)).pipe(
-      Effect.unless(() => ConfigError.isConfigError(Cause.squash(cause))),
-    ),
-  ),
   Effect.retry({
-    schedule: Schedule.jittered(Schedule.spaced("2 seconds")).pipe(
-      Schedule.tapOutput(() => Effect.logWarning(`[Server crashed]: Recreating server...`)),
+    while: (error) => error._tag === "DatabaseConnectionLostError",
+    schedule: Schedule.exponential("1 second", 2).pipe(
+      Schedule.modifyDelay(Duration.min("8 seconds")),
+      Schedule.jittered,
+      Schedule.repetitions,
+      Schedule.modifyDelayEffect((count, delay) =>
+        Effect.as(
+          Effect.logError(
+            `[Server crashed]: Retrying in ${Duration.format(delay)} (attempt #${count + 1})`,
+          ),
+          delay,
+        ),
+      ),
     ),
   }),
   BunRuntime.runMain({}),

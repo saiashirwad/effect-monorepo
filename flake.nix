@@ -20,15 +20,16 @@
             bun
             nodejs_22
             nodePackages.pnpm
-            docker
-            docker-compose
+            postgresql
+            git
           ];
           
           shellHook = ''
-            echo "Welcome to the Effect Monorepo development environment!"
             echo "Node.js: $(node --version)"
             echo "pnpm: $(pnpm --version)"
             echo "Bun: $(bun --version)"
+            echo "$(psql --version)"
+            echo "Git: $(git --version)"
             echo ""
           '';
         };

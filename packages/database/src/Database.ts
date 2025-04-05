@@ -2,13 +2,14 @@ import { type ExtractTablesWithRelations } from "drizzle-orm";
 import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import { type PgTransaction } from "drizzle-orm/pg-core";
 import * as Cause from "effect/Cause";
+import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Layer from "effect/Layer";
+import * as Option from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Runtime from "effect/Runtime";
-import * as Schedule from "effect/Schedule";
 import * as pg from "pg";
 import * as DbSchema from "./DbSchema.js";
 
@@ -21,6 +22,21 @@ type TransactionClient = PgTransaction<
 type Client = NodePgDatabase<typeof DbSchema> & {
   $client: pg.Pool;
 };
+
+type TransactionContextShape = <U>(
+  fn: (client: TransactionClient) => Promise<U>,
+) => Effect.Effect<U, DatabaseError>;
+export class TransactionContext extends Context.Tag("TransactionContext")<
+  TransactionContext,
+  TransactionContextShape
+>() {
+  public static readonly provide = (
+    transaction: TransactionContextShape,
+  ): (<A, E, R>(
+    self: Effect.Effect<A, E, R>,
+  ) => Effect.Effect<A, E, Exclude<R, TransactionContext>>) =>
+    Effect.provideService(this, transaction);
+}
 
 export class DatabaseError extends Data.TaggedError("DatabaseError")<{
   readonly type: "unique_violation" | "foreign_key_violation" | "connection_error";
@@ -75,19 +91,24 @@ const makeService = (config: Config) =>
     );
 
     yield* Effect.tryPromise(() => pool.query("SELECT 1")).pipe(
-      Effect.retry(
-        Schedule.jitteredWith(Schedule.spaced("1.25 seconds"), { min: 0.5, max: 1.5 }).pipe(
-          Schedule.tapOutput((output) =>
-            Effect.logWarning(
-              `[Database client]: Connection to the database failed. Retrying (attempt ${output}).`,
-            ),
-          ),
-        ),
+      Effect.timeoutFail({
+        duration: "10 seconds",
+        onTimeout: () =>
+          new DatabaseConnectionLostError({
+            cause: new Error("[Database] Failed to connect: timeout"),
+            message: "[Database] Failed to connect: timeout",
+          }),
+      }),
+      Effect.orElseFail(
+        () =>
+          new DatabaseConnectionLostError({
+            cause: new Error("[Database] Failed to connect"),
+            message: "[Database] Failed to connect",
+          }),
       ),
       Effect.tap(() =>
         Effect.logInfo("[Database client]: Connection to the database established."),
       ),
-      Effect.orDie,
     );
 
     const setupConnectionListeners = Effect.zipRight(
@@ -129,11 +150,7 @@ const makeService = (config: Config) =>
     );
 
     const transaction = Effect.fn("Database.transaction")(
-      <T, E, R>(
-        execute: (
-          tx: <U>(fn: (client: TransactionClient) => Promise<U>) => Effect.Effect<U, DatabaseError>,
-        ) => Effect.Effect<T, E, R>,
-      ) =>
+      <T, E, R>(txExecute: (tx: TransactionContextShape) => Effect.Effect<T, E, R>) =>
         Effect.runtime<R>().pipe(
           Effect.map((runtime) => Runtime.runPromiseExit(runtime)),
           Effect.flatMap((runPromiseExit) =>
@@ -151,7 +168,7 @@ const makeService = (config: Config) =>
                     },
                   });
 
-                const result = await runPromiseExit(execute(txWrapper));
+                const result = await runPromiseExit(txExecute(txWrapper));
                 Exit.match(result, {
                   onSuccess: (value) => {
                     resume(Effect.succeed(value));
@@ -173,21 +190,20 @@ const makeService = (config: Config) =>
         ),
     );
 
-    const makeQuery = <Input, A, E, R>(
-      queryFn: (
-        execute: <T>(
-          fn: (client: Client | TransactionClient) => Promise<T>,
-        ) => Effect.Effect<T, DatabaseError>,
-        input: Input,
-      ) => Effect.Effect<A, E, R>,
-    ) => {
-      return (
-        input: Input,
-        tx?: <T>(fn: (client: TransactionClient) => Promise<T>) => Effect.Effect<T, DatabaseError>,
-      ) => {
-        return queryFn(tx ?? execute, input);
-      };
-    };
+    const makeQuery =
+      <Input, A, E, R>(
+        queryFn: (
+          execute: <T>(
+            fn: (client: Client | TransactionClient) => Promise<T>,
+          ) => Effect.Effect<T, DatabaseError>,
+          input: Input,
+        ) => Effect.Effect<A, E, R>,
+      ) =>
+      (input: Input) =>
+        Effect.serviceOption(TransactionContext).pipe(
+          Effect.map(Option.getOrNull),
+          Effect.flatMap((tx) => queryFn(tx ?? execute, input)),
+        );
 
     return {
       execute,

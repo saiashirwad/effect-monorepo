@@ -9,6 +9,13 @@ A monorepo containing four packages:
 
 ## Prerequisites and Setup
 
+### Docker Requirements
+
+This project requires Docker and Docker Compose to be installed on your system:
+
+- [Install Docker](https://docs.docker.com/get-docker/)
+- [Install Docker Compose](https://docs.docker.com/compose/install/)
+
 ### Using Nix
 
 Using Nix ensures that all developers have the exact same development environment, eliminating "it works on my machine" problems.
@@ -46,12 +53,14 @@ Nix provides several benefits for development:
    experimental-features = nix-command flakes
    ```
 
-3. Enter the development environment:
+3. Start a Nix shell with your current shell:
 
    ```bash
    # From the project root
-   nix develop
+   nix shell -c $SHELL
    ```
+
+   The `-c $SHELL` option starts your current shell inside the Nix environment, which preserves your shell configuration, aliases, and history. This gives you a more comfortable development experience compared to the default Nix shell.
 
    This will automatically set up all required tools with the correct versions.
 
@@ -64,6 +73,7 @@ Nix provides several benefits for development:
 5. Start the Jaeger instance for local telemetry:
 
    ```bash
+   # Make sure you have Docker and Docker Compose installed on your system
    docker-compose up -d
    ```
 
@@ -81,28 +91,28 @@ Nix provides several benefits for development:
 
 ### Running Packages in Development Mode
 
-You can run packages in development mode directly from the root directory using the provided script aliases:
+Before running any commands, make sure you're in a Nix shell as described above.
 
 ```bash
 # Start the client
-pnpm dev:client
+pnpm --filter client dev
 
 # Start the server
-pnpm dev:server
+pnpm --filter server dev
 ```
 
-These commands use PNPM's filter feature behind the scenes, so there's no need to change directories.
+For the best development experience, run the server and client in separate terminal windows (each in its own Nix shell).
 
-For the best development experience, run the server and client in separate terminal windows:
+## Database Operations
+
+To work with the database, use the following commands:
 
 ```bash
-# In terminal 1
-nix develop
-pnpm dev:server
+# Push schema changes to the local database
+pnpm --filter database db:push
 
-# In terminal 2
-nix develop
-pnpm dev:client
+# Open Drizzle Studio to view and edit data
+pnpm --filter database db:studio
 ```
 
 ## Operations
@@ -111,7 +121,7 @@ pnpm dev:client
 
 **Building All Packages**
 
-To build all packages in the monorepo, run the following command from the root directory:
+To build all packages in the monorepo:
 
 ```sh
 pnpm build
@@ -119,24 +129,36 @@ pnpm build
 
 **Building a Specific Package**
 
-To build a specific package, use the `--filter` option:
-
-```sh
-pnpm --filter <package-name> build
-```
-
-For example:
+To build a specific package:
 
 ```sh
 pnpm --filter client build
+pnpm --filter server build
+pnpm --filter domain build
+pnpm --filter database build
 ```
 
-### Checking All Packages
+### Installing Dependencies
 
-To check all packages in the monorepo, run the following command:
+To add dependencies to a specific package:
 
 ```sh
-pnpm check:all
+# Add a production dependency
+pnpm add --filter client react-router-dom
+
+# Add a development dependency
+pnpm add -D --filter client @types/react
 ```
 
-This will run `pnpm lint`, `pnpm test`, and `pnpm check` for all packages.
+### Checking and Testing
+
+```sh
+# Run all checks
+pnpm check:all
+
+# Run tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+```

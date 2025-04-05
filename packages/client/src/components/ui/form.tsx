@@ -21,7 +21,7 @@ const FieldError: React.FC<
   if (error === null || String.isEmpty(error)) return null;
 
   return (
-    <span className={cn("text-red-500 dark:text-red-400 text-sm", className)} {...props}>
+    <span className={cn("text-sm text-red-500 dark:text-red-400", className)} {...props}>
       {error}
     </span>
   );
