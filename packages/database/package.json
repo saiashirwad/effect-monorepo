@@ -22,15 +22,15 @@
     "check": "tsc -b tsconfig.json",
     "test": "vitest",
     "coverage": "vitest --coverage",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "NODE_OPTIONS='--import tsx' drizzle-kit generate",
+    "db:migrate": "NODE_OPTIONS='--import tsx' drizzle-kit migrate",
+    "db:push": "NODE_OPTIONS='--import tsx' drizzle-kit push",
+    "db:studio": "NODE_OPTIONS='--import tsx' drizzle-kit studio"
   },
   "dependencies": {
-    "@effect/platform": "0.77.1",
+    "@effect/platform": "0.80.6",
     "drizzle-orm": "0.39.2",
-    "effect": "3.13.1",
+    "effect": "3.14.6",
     "pg": "8.13.1"
   },
   "effect": {

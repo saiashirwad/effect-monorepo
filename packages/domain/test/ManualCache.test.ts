@@ -2,12 +2,12 @@ import { describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as TestClock from "effect/TestClock";
 import { strictEqual } from "node:assert";
-import * as Cache from "../src/Cache.js";
+import * as ManualCache from "../src/ManualCache.js";
 
-describe("Cache", () => {
+describe("ManualCache", () => {
   it.scoped("should handle basic set and get operations", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 hour",
       });
@@ -22,7 +22,7 @@ describe("Cache", () => {
 
   it.scoped("should respect TTL and expire items", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 second",
       });
@@ -37,7 +37,7 @@ describe("Cache", () => {
 
   it.scoped("should respect capacity limits", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 2,
         timeToLive: "1 hour",
       });
@@ -66,7 +66,7 @@ describe("Cache", () => {
 
   it.scoped("should handle invalidation correctly", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 hour",
       });
@@ -81,7 +81,7 @@ describe("Cache", () => {
 
   it.scoped("should handle invalidateAll correctly", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 hour",
       });
@@ -97,7 +97,7 @@ describe("Cache", () => {
 
   it.scoped("should correctly track contains status", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 hour",
       });
@@ -114,7 +114,7 @@ describe("Cache", () => {
 
   it.scoped("should handle keys, values, and entries correctly", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "1 hour",
       });
@@ -138,7 +138,7 @@ describe("Cache", () => {
 
   it.scoped("should periodically evict items based on TTL", () =>
     Effect.gen(function* () {
-      const cache = yield* Cache.make<string, string>({
+      const cache = yield* ManualCache.make<string, string>({
         capacity: 100,
         timeToLive: "15 seconds",
       });

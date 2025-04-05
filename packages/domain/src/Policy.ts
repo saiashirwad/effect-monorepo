@@ -61,12 +61,17 @@ type Policy<E = never, R = never> = Effect.Effect<
  */
 export const policy = <E, R>(
   predicate: (user: CurrentUser["Type"]) => Effect.Effect<boolean, E, R>,
+  message?: string,
 ): Policy<E, R> =>
-  CurrentUser.pipe(
-    Effect.flatMap((user) =>
-      Effect.flatMap(predicate(user), (result) =>
-        result ? Effect.void : Effect.fail(new CustomHttpApiError.Forbidden()),
-      ),
+  Effect.flatMap(CurrentUser, (user) =>
+    Effect.flatMap(predicate(user), (result) =>
+      result
+        ? Effect.void
+        : Effect.fail(
+            message !== undefined
+              ? new CustomHttpApiError.Forbidden({ message })
+              : new CustomHttpApiError.Forbidden(),
+          ),
     ),
   );
 
@@ -83,7 +88,7 @@ export const withPolicy =
  * Composes multiple policies with AND semantics - all policies must pass.
  * Returns a new policy that succeeds only if all the given policies succeed.
  */
-export const all = <E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
+export const all = <E, R>(...policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
   Effect.all(policies, {
     concurrency: 1,
     discard: true,
@@ -93,7 +98,7 @@ export const all = <E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy
  * Composes multiple policies with OR semantics - at least one policy must pass.
  * Returns a new policy that succeeds if any of the given policies succeed.
  */
-export const any = <E, R>(policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
+export const any = <E, R>(...policies: NonEmptyReadonlyArray<Policy<E, R>>): Policy<E, R> =>
   Effect.firstSuccessOf(policies);
 
 /**

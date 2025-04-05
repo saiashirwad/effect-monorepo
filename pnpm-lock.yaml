@@ -28,17 +28,17 @@ importers:
         specifier: ^7.25.9
         version: 7.26.3(@babel/core@7.26.7)
       "@effect/build-utils":
-        specifier: ^0.7.7
+        specifier: 0.7.9
         version: 0.7.9
       "@effect/eslint-plugin":
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       "@effect/language-service":
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: 0.5.1
+        version: 0.5.1
       "@effect/vitest":
-        specifier: 0.17.6
-        version: 0.17.6(effect@3.13.1)(vitest@2.1.9(@types/node@22.13.1)(jsdom@26.0.0)(lightningcss@1.29.1)(terser@5.39.0))
+        specifier: 0.20.6
+        version: 0.20.6(effect@3.14.6)(vitest@2.1.9(@types/node@22.13.1)(jsdom@26.0.0)(lightningcss@1.29.1)(terser@5.39.0))
       "@eslint/compat":
         specifier: 1.2.2
         version: 1.2.2(eslint@9.13.0(jiti@2.4.2))
@@ -61,8 +61,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(patch_hash=fc3e96d4b985224ea421609113ce0b74baeb5000c4f0019bfc67780795721adf)(@babel/core@7.26.7)
       effect:
-        specifier: 3.13.1
-        version: 3.13.1
+        specifier: 3.14.6
+        version: 3.14.6
       eslint:
         specifier: 9.13.0
         version: 9.13.0(jiti@2.4.2)
@@ -124,8 +124,8 @@ importers:
   packages/client:
     dependencies:
       "@effect/platform":
-        specifier: 0.77.1
-        version: 0.77.1(effect@3.13.1)
+        specifier: 0.80.6
+        version: 0.80.6(effect@3.14.6)
       "@org/domain":
         specifier: workspace:^
         version: link:../domain/dist
@@ -166,8 +166,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       effect:
-        specifier: 3.13.1
-        version: 3.13.1
+        specifier: 3.14.6
+        version: 3.14.6
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.0.0)
@@ -275,14 +275,14 @@ importers:
   packages/database:
     dependencies:
       "@effect/platform":
-        specifier: 0.77.1
-        version: 0.77.1(effect@3.13.1)
+        specifier: 0.80.6
+        version: 0.80.6(effect@3.14.6)
       drizzle-orm:
         specifier: 0.39.2
         version: 0.39.2(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(@types/react@19.0.8)(pg@8.13.1)(react@19.0.0)
       effect:
-        specifier: 3.13.1
-        version: 3.13.1
+        specifier: 3.14.6
+        version: 3.14.6
       pg:
         specifier: 8.13.1
         version: 8.13.1
@@ -304,27 +304,27 @@ importers:
   packages/domain:
     dependencies:
       "@effect/platform":
-        specifier: 0.77.1
-        version: 0.77.1(effect@3.13.1)
+        specifier: 0.80.6
+        version: 0.80.6(effect@3.14.6)
       effect:
-        specifier: 3.13.1
-        version: 3.13.1
+        specifier: 3.14.6
+        version: 3.14.6
     publishDirectory: dist
 
   packages/server:
     dependencies:
       "@effect/experimental":
-        specifier: 0.41.1
-        version: 0.41.1(@effect/platform-node@0.73.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1))(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)(ws@8.18.0)
+        specifier: 0.44.6
+        version: 0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
       "@effect/opentelemetry":
-        specifier: ^0.42.9
-        version: 0.42.9(@opentelemetry/api@1.9.0)(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.28.0)(effect@3.13.1)
+        specifier: 0.45.6
+        version: 0.45.6(@opentelemetry/api@1.9.0)(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.28.0)(effect@3.14.6)
       "@effect/platform":
-        specifier: 0.77.1
-        version: 0.77.1(effect@3.13.1)
+        specifier: 0.80.6
+        version: 0.80.6(effect@3.14.6)
       "@effect/platform-bun":
-        specifier: 0.57.1
-        version: 0.57.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)
+        specifier: 0.60.10
+        version: 0.60.10(@effect/cluster@0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)
       "@opentelemetry/exporter-trace-otlp-http":
         specifier: ^0.57.1
         version: 0.57.1(@opentelemetry/api@1.9.0)
@@ -344,8 +344,8 @@ importers:
         specifier: 0.39.2
         version: 0.39.2(@opentelemetry/api@1.9.0)(@types/pg@8.11.11)(@types/react@19.0.8)(pg@8.13.1)(react@19.0.0)
       effect:
-        specifier: 3.13.1
-        version: 3.13.1
+        specifier: 3.14.6
+        version: 3.14.6
       pg:
         specifier: 8.13.1
         version: 8.13.1
@@ -700,55 +700,63 @@ packages:
     engines: { node: ">=16.17.1" }
     hasBin: true
 
-  "@effect/eslint-plugin@0.2.0":
+  "@effect/cluster@0.29.10":
     resolution:
       {
-        integrity: sha512-PC/hEDGctYGYIjZyhM6kbD4FyHxLgoYNoQNjGkCXcFEzi71vQc3PJKe2JnCgzcUDvr/Nc2qgTVU4ONYwjHzQGA==,
-      }
-
-  "@effect/experimental@0.41.1":
-    resolution:
-      {
-        integrity: sha512-+dYypZmeTOgfTora6tJ5SCaAxWs25NX9pjm/dX60tnsEEuB2YzFRGbshFmbTx0KcDPKZBplKEoxbuADSTZz4mw==,
+        integrity: sha512-JOpTD3ZE9fAfo9j9gKJ3K6c2ahxgcDIsFIVnDaQdoNFkbWUHy/KXzBwVzQQW7yUce5dVhCcbS/KZYlgjJ2FE2Q==,
       }
     peerDependencies:
-      "@effect/platform": ^0.77.1
-      "@effect/platform-node": ^0.73.1
-      effect: ^3.13.1
+      "@effect/platform": ^0.80.6
+      "@effect/rpc": ^0.55.8
+      "@effect/sql": ^0.33.6
+      effect: ^3.14.6
+
+  "@effect/eslint-plugin@0.3.0":
+    resolution:
+      {
+        integrity: sha512-feNIhQXE0SGkyIKUlTHY7m/AMOxwfpBs3QBwDX7qSl8sShyxWmGWzES4R0u/9hUmHj1o2+Ie49UkN/lOp6728A==,
+      }
+
+  "@effect/experimental@0.44.6":
+    resolution:
+      {
+        integrity: sha512-1xbExr01HbyCoeSiFUGEmRrRMofjdrZsEM843VswhUdtJWpgT1E5xxfcK5TY4krxzfse9bLB8yQTD7eZGNO5ng==,
+      }
+    peerDependencies:
+      "@effect/platform": ^0.80.6
+      effect: ^3.14.6
       ioredis: ^5
       lmdb: ^3
-      ws: ^8
     peerDependenciesMeta:
-      "@effect/platform-node":
-        optional: true
       ioredis:
         optional: true
       lmdb:
         optional: true
-      ws:
-        optional: true
 
-  "@effect/language-service@0.2.0":
+  "@effect/language-service@0.5.1":
     resolution:
       {
-        integrity: sha512-DoK41yKGyQv79o0ca8gxEogMlt+IphXkdCXwgenbQjH1BXKD7tJAr0+VsDhblycQcvQ39f1l9NZN9CBqjM9ALA==,
+        integrity: sha512-pS1dcAoPwd8PFWQ3w1cMe7ZXuLVJHc7MadCjpdrGvlq8OkZwVZhPxbyA8IkycZZXHyZ0R15Li6Ik0Uxfevn6sw==,
       }
 
-  "@effect/opentelemetry@0.42.9":
+  "@effect/opentelemetry@0.45.6":
     resolution:
       {
-        integrity: sha512-3tHwKHoMQS1VzO2oCEMnGruwpp294Bjej5YzzdF7upSX6yQ458PY/BBB3TZlahEwPWFJLc8nwk48GrH1f5oYLA==,
+        integrity: sha512-4G4F2Fu7Mjle4rj2GPLFT0e1orethUFD6l2mp0mFVNlqotBYeViNynea2xdPPwpgE3413VLzjpq4z8qeJ9BwQw==,
       }
     peerDependencies:
-      "@opentelemetry/api": ^1.6
-      "@opentelemetry/resources": ^1.22
-      "@opentelemetry/sdk-metrics": ^1.22
-      "@opentelemetry/sdk-trace-base": ^1.22
-      "@opentelemetry/sdk-trace-node": ^1.22
-      "@opentelemetry/sdk-trace-web": ^1.22
-      "@opentelemetry/semantic-conventions": ^1.24.1
-      effect: ^3.12.9
+      "@opentelemetry/api": ^1.9
+      "@opentelemetry/resources": ^1.25
+      "@opentelemetry/sdk-logs": "*"
+      "@opentelemetry/sdk-metrics": ^1.25
+      "@opentelemetry/sdk-trace-base": ^1.25
+      "@opentelemetry/sdk-trace-node": ^1.25
+      "@opentelemetry/sdk-trace-web": ^1.25
+      "@opentelemetry/semantic-conventions": ^1.25
+      effect: ^3.14.6
     peerDependenciesMeta:
+      "@opentelemetry/sdk-logs":
+        optional: true
       "@opentelemetry/sdk-metrics":
         optional: true
       "@opentelemetry/sdk-trace-base":
@@ -758,48 +766,64 @@ packages:
       "@opentelemetry/sdk-trace-web":
         optional: true
 
-  "@effect/platform-bun@0.57.1":
+  "@effect/platform-bun@0.60.10":
     resolution:
       {
-        integrity: sha512-W9ytusiVwBMIq5hdF4NJStwtFD4dX91JeN/tihqTHHuTsD4RLE5kJ+l96pfHCuD4NVGMn+mUgyRH5UahTwAMlQ==,
+        integrity: sha512-Dm5lV9v4EXTIhs3k/3Fl9gwF4F+D1+pwcjGRPY0Rayf1AIBxtmU1IZ+Dij8rb6Y8fUmLaucSbtE0Ap8bqhnTuw==,
       }
     peerDependencies:
-      "@effect/platform": ^0.77.1
-      effect: ^3.13.1
+      "@effect/cluster": ^0.29.10
+      "@effect/platform": ^0.80.6
+      "@effect/rpc": ^0.55.8
+      "@effect/sql": ^0.33.6
+      effect: ^3.14.6
 
-  "@effect/platform-node-shared@0.27.1":
+  "@effect/platform-node-shared@0.30.10":
     resolution:
       {
-        integrity: sha512-z3zQTwLiH3S/TcFv736F7ncAwqHU/PGW4VJeHy3ptwgaXq4QZGabn7pdE1Plx3eTcQaFNqVgeSgLoGlEKAo4rw==,
+        integrity: sha512-JonjcUUoJy7efo15nwdSUqkdY0zFeLFFpfktFEi55t8ijdk6sUAmEdT5ChsRSotfG0mAyodz9CXy1/5kpVr3ig==,
       }
     peerDependencies:
-      "@effect/platform": ^0.77.1
-      effect: ^3.13.1
+      "@effect/cluster": ^0.29.10
+      "@effect/platform": ^0.80.6
+      "@effect/rpc": ^0.55.8
+      "@effect/sql": ^0.33.6
+      effect: ^3.14.6
 
-  "@effect/platform-node@0.73.1":
+  "@effect/platform@0.80.6":
     resolution:
       {
-        integrity: sha512-gQQDb8vPBBPl7QEtzYvvD+DDj7dfkMzkP4jaekCB+LezwcwITRexSZdNglFyeOk+0wbzYle1JwJiXQkoVut6Bw==,
+        integrity: sha512-Q40WOVDCyZynWvXeIvp2Na1h2bEs6o7esODvJhSkPZhWRPiVdkW1j5hPR7No9q2KuOLbNtrqV/pEZeP2BnIoKg==,
       }
     peerDependencies:
-      "@effect/platform": ^0.77.1
-      effect: ^3.13.1
+      effect: ^3.14.6
 
-  "@effect/platform@0.77.1":
+  "@effect/rpc@0.55.8":
     resolution:
       {
-        integrity: sha512-3oHbKiOLN7AIjyucZW+kH5ebG1PhEEBrsdd+HWbDQbAG0gVZfgOUmXR9cyM6M9L+9oVPgOW5mIgcEi6RvD02Cw==,
+        integrity: sha512-xZqQ9FjMMm5NjBJMUImnuSYngIYk0TZeA4bfrKYfGRvTMCPsLFrwq4UbY91TDoXIv79MPD2r0QGyhajGwjQQeA==,
       }
     peerDependencies:
-      effect: ^3.13.1
+      "@effect/platform": ^0.80.6
+      effect: ^3.14.6
 
-  "@effect/vitest@0.17.6":
+  "@effect/sql@0.33.6":
     resolution:
       {
-        integrity: sha512-UQXBaQ4+OeIm2n2jcCmxQcinDPvwRc5PS/sT4ZVTXC/tVFrhOlAe+JufdgVUxt7h9+ZConehywVdSG8H8LgRIQ==,
+        integrity: sha512-E38k4GAhpqRgvWCk/huJR2Ugbaao1dNm4GmlBSbQEPhFU4QYn8Bfiyb17wjdPISGjFC+3B+T9lJKb7408Id8zg==,
       }
     peerDependencies:
-      effect: ^3.12.10
+      "@effect/experimental": ^0.44.6
+      "@effect/platform": ^0.80.6
+      effect: ^3.14.6
+
+  "@effect/vitest@0.20.6":
+    resolution:
+      {
+        integrity: sha512-tlpKzaiPYy0CyTS4vyttVJZhlUHHnfj19izN0iTTV7eF/egv90TjSbCDZUFV+vd77tr9PeEUgoQ7Vph0c6XPsA==,
+      }
+    peerDependencies:
+      effect: ^3.14.6
       vitest: ^2.0.5
 
   "@esbuild-kit/core-utils@3.3.2":
@@ -5118,10 +5142,10 @@ packages:
         integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==,
       }
 
-  effect@3.13.1:
+  effect@3.14.6:
     resolution:
       {
-        integrity: sha512-YbA45m51eZapqy/ptZvIIZi+XBj13fPCzbiDRLgxZTEUhKuf4xLzuuSsKc61Y3SIscMM2o+VPht2ty+bVEQHQQ==,
+        integrity: sha512-/QMsBfMw2Gt10x3y2jVqDanLpKFrhc4L/3vqjrD36GWeuOcjN+1mvsvw9+RseAq9hmmkc3MFvLznfiEopqcPuw==,
       }
 
   electron-to-chromium@1.5.91:
@@ -6933,14 +6957,6 @@ packages:
         integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==,
       }
     engines: { node: ">= 0.6" }
-
-  mime@3.0.0:
-    resolution:
-      {
-        integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==,
-      }
-    engines: { node: ">=10.0.0" }
-    hasBin: true
 
   mimic-fn@2.1.0:
     resolution:
@@ -8892,13 +8908,6 @@ packages:
       }
     engines: { node: ">=18.17" }
 
-  undici@7.3.0:
-    resolution:
-      {
-        integrity: sha512-Qy96NND4Dou5jKoSJ2gm8ax8AJM/Ey9o9mz7KN1bb9GP+G0l20Zw8afxTnY2f4b7hmhn/z8aC2kfArVQlAhFBw==,
-      }
-    engines: { node: ">=20.18.1" }
-
   unicorn-magic@0.1.0:
     resolution:
       {
@@ -9674,72 +9683,89 @@ snapshots:
 
   "@effect/build-utils@0.7.9": {}
 
-  "@effect/eslint-plugin@0.2.0":
+  "@effect/cluster@0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)":
+    dependencies:
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      "@effect/rpc": 0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      "@effect/sql": 0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      effect: 3.14.6
+
+  "@effect/eslint-plugin@0.3.0":
     dependencies:
       "@dprint/formatter": 0.4.1
       "@dprint/typescript": 0.91.8
       prettier-linter-helpers: 1.0.0
 
-  "@effect/experimental@0.41.1(@effect/platform-node@0.73.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1))(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)(ws@8.18.0)":
+  "@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)":
     dependencies:
-      "@effect/platform": 0.77.1(effect@3.13.1)
-      effect: 3.13.1
-      msgpackr: 1.11.2
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      effect: 3.14.6
       uuid: 11.0.5
-    optionalDependencies:
-      "@effect/platform-node": 0.73.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)
-      ws: 8.18.0
 
-  "@effect/language-service@0.2.0": {}
+  "@effect/language-service@0.5.1": {}
 
-  "@effect/opentelemetry@0.42.9(@opentelemetry/api@1.9.0)(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.28.0)(effect@3.13.1)":
+  "@effect/opentelemetry@0.45.6(@opentelemetry/api@1.9.0)(@opentelemetry/resources@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.28.0)(effect@3.14.6)":
     dependencies:
       "@opentelemetry/api": 1.9.0
       "@opentelemetry/resources": 1.30.1(@opentelemetry/api@1.9.0)
       "@opentelemetry/semantic-conventions": 1.28.0
-      effect: 3.13.1
+      effect: 3.14.6
     optionalDependencies:
       "@opentelemetry/sdk-metrics": 1.30.1(@opentelemetry/api@1.9.0)
       "@opentelemetry/sdk-trace-base": 1.30.1(@opentelemetry/api@1.9.0)
       "@opentelemetry/sdk-trace-node": 1.30.1(@opentelemetry/api@1.9.0)
       "@opentelemetry/sdk-trace-web": 1.30.1(@opentelemetry/api@1.9.0)
 
-  "@effect/platform-bun@0.57.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)":
+  "@effect/platform-bun@0.60.10(@effect/cluster@0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)":
     dependencies:
-      "@effect/platform": 0.77.1(effect@3.13.1)
-      "@effect/platform-node-shared": 0.27.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)
-      effect: 3.13.1
+      "@effect/cluster": 0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      "@effect/platform-node-shared": 0.30.10(@effect/cluster@0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)
+      "@effect/rpc": 0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      "@effect/sql": 0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      effect: 3.14.6
       multipasta: 0.2.5
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
-  "@effect/platform-node-shared@0.27.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)":
+  "@effect/platform-node-shared@0.30.10(@effect/cluster@0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)":
     dependencies:
-      "@effect/platform": 0.77.1(effect@3.13.1)
+      "@effect/cluster": 0.29.10(@effect/platform@0.80.6(effect@3.14.6))(@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      "@effect/rpc": 0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      "@effect/sql": 0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
       "@parcel/watcher": 2.5.1
-      effect: 3.13.1
+      effect: 3.14.6
       multipasta: 0.2.5
-
-  "@effect/platform-node@0.73.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)":
-    dependencies:
-      "@effect/platform": 0.77.1(effect@3.13.1)
-      "@effect/platform-node-shared": 0.27.1(@effect/platform@0.77.1(effect@3.13.1))(effect@3.13.1)
-      effect: 3.13.1
-      mime: 3.0.0
-      undici: 7.3.0
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
-    optional: true
 
-  "@effect/platform@0.77.1(effect@3.13.1)":
+  "@effect/platform@0.80.6(effect@3.14.6)":
     dependencies:
-      effect: 3.13.1
+      effect: 3.14.6
       find-my-way-ts: 0.1.5
+      msgpackr: 1.11.2
       multipasta: 0.2.5
 
-  "@effect/vitest@0.17.6(effect@3.13.1)(vitest@2.1.9(@types/node@22.13.1)(jsdom@26.0.0)(lightningcss@1.29.1)(terser@5.39.0))":
+  "@effect/rpc@0.55.8(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)":
     dependencies:
-      effect: 3.13.1
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      effect: 3.14.6
+
+  "@effect/sql@0.33.6(@effect/experimental@0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6))(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)":
+    dependencies:
+      "@effect/experimental": 0.44.6(@effect/platform@0.80.6(effect@3.14.6))(effect@3.14.6)
+      "@effect/platform": 0.80.6(effect@3.14.6)
+      "@opentelemetry/semantic-conventions": 1.28.0
+      effect: 3.14.6
+      uuid: 11.0.5
+
+  "@effect/vitest@0.20.6(effect@3.14.6)(vitest@2.1.9(@types/node@22.13.1)(jsdom@26.0.0)(lightningcss@1.29.1)(terser@5.39.0))":
+    dependencies:
+      effect: 3.14.6
       vitest: 2.1.9(@types/node@22.13.1)(jsdom@26.0.0)(lightningcss@1.29.1)(terser@5.39.0)
 
   "@esbuild-kit/core-utils@3.3.2":
@@ -12111,7 +12137,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  effect@3.13.1:
+  effect@3.14.6:
     dependencies:
       "@standard-schema/spec": 1.0.0
       fast-check: 3.23.2
@@ -13477,9 +13503,6 @@ snapshots:
     dependencies:
       mime-db: 1.52.0
 
-  mime@3.0.0:
-    optional: true
-
   mimic-fn@2.1.0: {}
 
   mimic-fn@4.0.0: {}
@@ -14632,9 +14655,6 @@ snapshots:
   undici-types@6.20.0: {}
 
   undici@6.21.1: {}
-
-  undici@7.3.0:
-    optional: true
 
   unicorn-magic@0.1.0: {}
 

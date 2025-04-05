@@ -24,8 +24,8 @@
     "coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@effect/platform": "0.77.1",
-    "effect": "3.13.1"
+    "@effect/platform": "0.80.6",
+    "effect": "3.14.6"
   },
   "effect": {
     "generateExports": {
