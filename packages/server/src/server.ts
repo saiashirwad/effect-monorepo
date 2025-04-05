@@ -13,15 +13,15 @@ import * as Schedule from "effect/Schedule";
 import { createServer } from "node:http";
 import { Api } from "./api.js";
 import { EnvVars } from "./common/env-vars.js";
-import { MeLive } from "./public/me/me-live.js";
 import { UserAuthMiddlewareLive } from "./public/middlewares/auth-middleware-live.js";
+import { TodosLive } from "./public/todos/todos-live.js";
 
 dotenv.config({
   path: "../../.env",
 });
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
-  Layer.provide([MeLive]),
+  Layer.provide([TodosLive]),
   Layer.provide([UserAuthMiddlewareLive]),
 );
 

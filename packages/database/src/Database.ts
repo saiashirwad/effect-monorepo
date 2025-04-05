@@ -190,20 +190,20 @@ const makeService = (config: Config) =>
         ),
     );
 
+    type ExecuteFn = <T>(
+      fn: (client: Client | TransactionClient) => Promise<T>,
+    ) => Effect.Effect<T, DatabaseError>;
     const makeQuery =
-      <Input, A, E, R>(
-        queryFn: (
-          execute: <T>(
-            fn: (client: Client | TransactionClient) => Promise<T>,
-          ) => Effect.Effect<T, DatabaseError>,
-          input: Input,
-        ) => Effect.Effect<A, E, R>,
+      <A, E, R, Input = never>(
+        queryFn: (execute: ExecuteFn, input: Input) => Effect.Effect<A, E, R>,
       ) =>
-      (input: Input) =>
-        Effect.serviceOption(TransactionContext).pipe(
+      (...args: [Input] extends [never] ? [] : [input: Input]): Effect.Effect<A, E, R> => {
+        const input = args[0] as Input;
+        return Effect.serviceOption(TransactionContext).pipe(
           Effect.map(Option.getOrNull),
-          Effect.flatMap((tx) => queryFn(tx ?? execute, input)),
+          Effect.flatMap((txOrNull) => queryFn(txOrNull ?? execute, input)),
         );
+      };
 
     return {
       execute,
