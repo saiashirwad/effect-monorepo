@@ -2,7 +2,7 @@ import { Button, Checkbox } from "@/components/ui";
 import { TodosQueries } from "@/data-access/todos-queries";
 import type { TodosContract } from "@org/domain/api/Contracts";
 import { Trash2Icon } from "lucide-react";
-import type React from "react";
+import React from "react";
 
 export const TodoItem: React.FC<{ todo: TodosContract.Todo }> = ({ todo }) => {
   const updateTodo = TodosQueries.useUpdateTodoMutation();

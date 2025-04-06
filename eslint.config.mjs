@@ -328,9 +328,11 @@ export default [
       "react/jsx-curly-brace-presence": "error",
       "react/jsx-boolean-value": "error",
       "react/self-closing-comp": "error",
+      "react/no-unstable-nested-components": "error",
+
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
-      "react-hooks/rules-of-hooks": "warn",
+      "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
     },
   },

@@ -11,7 +11,7 @@ export namespace TodosQueries {
   export const useTodosQuery = () => {
     return useEffectQuery({
       queryKey: todosKey(),
-      queryFn: () => ApiClient.use((client) => client.todos.get()),
+      queryFn: () => Effect.flatMap(ApiClient, (client) => client.todos.get()),
     });
   };
 
@@ -19,7 +19,7 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.createTodo"],
       mutationFn: (todo: TodosContract.CreateTodoPayload) =>
-        ApiClient.use((client) => client.todos.create({ payload: todo })).pipe(
+        Effect.flatMap(ApiClient, (client) => client.todos.create({ payload: todo })).pipe(
           Effect.tap((createdTodo) =>
             todosHelpers.setData((draft) => {
               draft.unshift(createdTodo);
@@ -34,7 +34,7 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.updateTodo"],
       mutationFn: (todo: TodosContract.Todo) =>
-        ApiClient.use((client) => client.todos.update({ payload: todo })).pipe(
+        Effect.flatMap(ApiClient, (client) => client.todos.update({ payload: todo })).pipe(
           Effect.tap((updatedTodo) =>
             todosHelpers.setData((draft) => {
               const index = draft.findIndex((t) => t.id === updatedTodo.id);
@@ -52,7 +52,7 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.deleteTodo"],
       mutationFn: (id: TodoId) =>
-        ApiClient.use((client) => client.todos.delete({ payload: id })).pipe(
+        Effect.flatMap(ApiClient, (client) => client.todos.delete({ payload: id })).pipe(
           Effect.tap(() =>
             todosHelpers.setData((draft) => {
               const index = draft.findIndex((t) => t.id === id);
