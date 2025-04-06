@@ -11,14 +11,20 @@ export const TodosLive = HttpApiBuilder.group(
     const repository = yield* TodosRepository;
 
     return handlers
-      .handle("get", () => repository.findAll())
+      .handle("get", () => repository.findAll().pipe(Effect.withSpan("TodosLive.get")))
       .handle("create", (request) =>
-        repository.create({
-          completed: false,
-          title: request.payload.title,
-        }),
+        repository
+          .create({
+            completed: false,
+            title: request.payload.title,
+          })
+          .pipe(Effect.withSpan("TodosLive.create")),
       )
-      .handle("update", (request) => repository.update(request.payload))
-      .handle("delete", (request) => repository.del(request.payload));
+      .handle("update", (request) =>
+        repository.update(request.payload).pipe(Effect.withSpan("TodosLive.update")),
+      )
+      .handle("delete", (request) =>
+        repository.del(request.payload).pipe(Effect.withSpan("TodosLive.delete")),
+      );
   }),
 ).pipe(Layer.provide(TodosRepository.Default));

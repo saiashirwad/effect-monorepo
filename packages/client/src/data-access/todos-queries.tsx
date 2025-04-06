@@ -63,6 +63,9 @@ export namespace TodosQueries {
           ),
         ),
       toastifySuccess: () => "Todo deleted!",
+      toastifyErrors: {
+        TodoNotFoundError: (error) => error.message,
+      },
     });
   };
 }

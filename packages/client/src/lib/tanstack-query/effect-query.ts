@@ -38,10 +38,9 @@ const hasStringMessage = Predicate.compose(
   ),
 );
 
-type EffectfulError = { _tag: string };
-type ErrorTagHandler<E extends EffectfulError> = (error: Extract<E, { _tag: string }>) => string;
+type EffectfulError<Tag extends string = string> = { _tag: Tag };
 type ToastifyErrorsConfig<E extends EffectfulError> = {
-  [K in E["_tag"]]?: ErrorTagHandler<E>;
+  [K in E["_tag"]]?: (error: Extract<E, EffectfulError<K>>) => string;
 } & {
   orElse?: boolean | string | "extractMessage";
 };
@@ -80,7 +79,8 @@ const useRunner = <A, E extends EffectfulError, R extends LiveRuntimeContext>({
                 const tagHandler = tagConfigs[errorTag];
 
                 if (tagHandler !== undefined) {
-                  const message = tagHandler(error as Extract<E, { _tag: string }>);
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                  const message = tagHandler(error as any);
                   toast.error(message);
                   return;
                 } else if (orElse !== false) {
@@ -130,6 +130,10 @@ const useRunner = <A, E extends EffectfulError, R extends LiveRuntimeContext>({
 export type QueryVariables = Record<string, unknown>;
 export type QueryKey = readonly [string, QueryVariables?];
 
+// ==========================================
+// useEffectMutation
+// ==========================================
+
 type EffectfulMutationOptions<
   A,
   E extends EffectfulError,
@@ -168,6 +172,10 @@ export function useEffectMutation<
     throwOnError: false,
   });
 }
+
+// ==========================================
+// useEffectQuery
+// ==========================================
 
 type EffectfulQueryFunction<
   A,
@@ -250,6 +258,10 @@ export type EffectfulInfiniteQueryOptions<
   staleTime?: Duration.DurationInput;
   gcTime?: Duration.DurationInput;
 } & UseRunnerOpts<A, E>;
+
+// ==========================================
+// useEffectInfiniteQuery
+// ==========================================
 
 export function useEffectInfiniteQuery<
   A,
