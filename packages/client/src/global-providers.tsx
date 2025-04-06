@@ -7,6 +7,7 @@ import * as Logger from "effect/Logger";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
 import { ThemeProvider } from "./components/providers/theme-provider";
+import { Toaster } from "./components/ui";
 import "./index.css";
 import { ApiClient } from "./layers/api-client";
 import { NetworkMonitor } from "./layers/common/network-monitor";
@@ -69,6 +70,7 @@ const InnerProviders: React.FC = () => {
 export const GlobalProviders: React.FC = () => {
   return (
     <ThemeProvider>
+      <Toaster />
       <InnerProviders />
     </ThemeProvider>
   );

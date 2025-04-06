@@ -12,7 +12,12 @@ export const TodosLive = HttpApiBuilder.group(
 
     return handlers
       .handle("get", () => repository.findAll())
-      .handle("create", (request) => repository.create(request.payload))
+      .handle("create", (request) =>
+        repository.create({
+          completed: false,
+          title: request.payload.title,
+        }),
+      )
       .handle("update", (request) => repository.update(request.payload))
       .handle("delete", (request) => repository.del(request.payload));
   }),

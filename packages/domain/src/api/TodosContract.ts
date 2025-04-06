@@ -16,18 +16,28 @@ export class TodoNotFoundError extends Schema.TaggedError<TodoNotFoundError>("To
 
 export class Todo extends Schema.Class<Todo>("Todo")({
   id: TodoId,
-  title: Schema.String,
+  title: Schema.Trim.pipe(Schema.nonEmptyString()),
   completed: Schema.Boolean,
+}) {}
+
+export class CreateTodoPayload extends Schema.Class<CreateTodoPayload>("CreateTodoPayload")({
+  title: Todo.fields.title,
+}) {}
+
+export class UpdateTodoPayload extends Schema.Class<UpdateTodoPayload>("UpdateTodoPayload")({
+  id: TodoId,
+  title: Todo.fields.title,
+  completed: Todo.fields.completed,
 }) {}
 
 export class Group extends HttpApiGroup.make("todos")
   .add(HttpApiEndpoint.get("get", "/").addSuccess(Schema.Array(Todo)))
-  .add(HttpApiEndpoint.post("create", "/").addSuccess(Todo).setPayload(Todo))
+  .add(HttpApiEndpoint.post("create", "/").addSuccess(Todo).setPayload(CreateTodoPayload))
   .add(
     HttpApiEndpoint.put("update", "/:id")
       .addError(TodoNotFoundError)
       .addSuccess(Todo)
-      .setPayload(Todo),
+      .setPayload(UpdateTodoPayload),
   )
   .add(
     HttpApiEndpoint.del("delete", "/:id")

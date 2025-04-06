@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const Index = () => {
-  return <div>Index</div>;
-};
+import { IndexPage } from "../features/index";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: IndexPage,
 });

@@ -10,39 +10,54 @@ export class TodosRepository extends Effect.Service<TodosRepository>()("TodosRep
   effect: Effect.gen(function* () {
     const db = yield* Database.Database;
 
-    const create = db.makeQuery((execute, input: TodosContract.Todo) =>
-      execute((client) => client.insert(DbSchema.todosTable).values(input).returning()).pipe(
-        Effect.flatMap(Array.head),
-        Effect.flatMap(Schema.decode(TodosContract.Todo)),
-        Effect.catchTags({
-          DatabaseError: Effect.die,
-          NoSuchElementException: () => Effect.dieMessage(""),
-          ParseError: Effect.die,
-        }),
-        Effect.withSpan("TodosRepository.create"),
-      ),
+    const create = db.makeQuery(
+      (
+        execute,
+        input: {
+          title: string;
+          completed: boolean;
+        },
+      ) =>
+        execute((client) => client.insert(DbSchema.todosTable).values(input).returning()).pipe(
+          Effect.flatMap(Array.head),
+          Effect.flatMap(Schema.decode(TodosContract.Todo)),
+          Effect.catchTags({
+            DatabaseError: Effect.die,
+            NoSuchElementException: () => Effect.dieMessage(""),
+            ParseError: Effect.die,
+          }),
+          Effect.withSpan("TodosRepository.create"),
+        ),
     );
 
-    const update = db.makeQuery((execute, input: TodosContract.Todo) =>
-      execute((client) =>
-        client
-          .update(DbSchema.todosTable)
-          .set(input)
-          .where(d.eq(DbSchema.todosTable.id, input.id))
-          .returning(),
-      ).pipe(
-        Effect.flatMap(Array.head),
-        Effect.flatMap(Schema.decode(TodosContract.Todo)),
-        Effect.catchTags({
-          DatabaseError: Effect.die,
-          NoSuchElementException: () =>
-            new TodosContract.TodoNotFoundError({
-              message: `Todo with id ${input.id} not found`,
-            }),
-          ParseError: Effect.die,
-        }),
-        Effect.withSpan("TodosRepository.update"),
-      ),
+    const update = db.makeQuery(
+      (
+        execute,
+        input: {
+          id: string;
+          title: string;
+          completed: boolean;
+        },
+      ) =>
+        execute((client) =>
+          client
+            .update(DbSchema.todosTable)
+            .set(input)
+            .where(d.eq(DbSchema.todosTable.id, input.id))
+            .returning(),
+        ).pipe(
+          Effect.flatMap(Array.head),
+          Effect.flatMap(Schema.decode(TodosContract.Todo)),
+          Effect.catchTags({
+            DatabaseError: Effect.die,
+            NoSuchElementException: () =>
+              new TodosContract.TodoNotFoundError({
+                message: `Todo with id ${input.id} not found`,
+              }),
+            ParseError: Effect.die,
+          }),
+          Effect.withSpan("TodosRepository.update"),
+        ),
     );
 
     const findAll = db.makeQuery((execute) =>
