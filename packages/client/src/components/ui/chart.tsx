@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils/cn";
+import * as Predicate from "effect/Predicate";
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
@@ -170,12 +171,17 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            const indicatorColor = color ?? item.payload.fill ?? item.color;
+
+            const hasFill = Predicate.compose(
+              Predicate.hasProperty("fill"),
+              Predicate.struct({ fill: Predicate.isString }),
+            );
+            const fill = hasFill(item.payload) ? item.payload.fill : null;
+            const indicatorColor = color ?? fill ?? item.color;
 
             return (
               <div
-                key={item.dataKey}
+                key={item.value as React.Key}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center",
@@ -271,7 +277,7 @@ const ChartLegendContent = React.forwardRef<
 
         return (
           <div
-            key={item.value}
+            key={item.value as React.Key}
             className={cn(
               "[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3",
             )}
@@ -282,7 +288,7 @@ const ChartLegendContent = React.forwardRef<
               <div
                 className="h-2 w-2 shrink-0 rounded-[2px]"
                 style={{
-                  backgroundColor: item.color,
+                  backgroundColor: item.color as string,
                 }}
               />
             )}

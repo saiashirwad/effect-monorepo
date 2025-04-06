@@ -93,7 +93,7 @@ export function makeHelpers<Data, Variables = void>(
 
   return {
     removeQuery: (...variables: QueryParams) =>
-      QueryClient.use((client) => {
+      Effect.andThen(QueryClient, (client) => {
         client.removeQueries({
           queryKey:
             variables.length === 0
@@ -102,11 +102,11 @@ export function makeHelpers<Data, Variables = void>(
         });
       }),
     removeAllQueries: () =>
-      QueryClient.use((client) => {
+      Effect.andThen(QueryClient, (client) => {
         client.removeQueries({ queryKey: [namespaceKey], exact: false });
       }),
     setData: (...params: SetDataParams) =>
-      QueryClient.use((client) =>
+      Effect.andThen(QueryClient, (client) =>
         client.setQueryData<Data>(
           params.length === 1
             ? (queryKey as () => readonly [string])()
@@ -128,7 +128,7 @@ export function makeHelpers<Data, Variables = void>(
         ),
       ),
     invalidateQuery: (...variables: QueryParams) =>
-      QueryClient.use((client) =>
+      Effect.andThen(QueryClient, (client) =>
         client.invalidateQueries({
           queryKey:
             variables.length === 0
@@ -137,11 +137,11 @@ export function makeHelpers<Data, Variables = void>(
         }),
       ).pipe(Effect.orDie),
     invalidateAllQueries: () =>
-      QueryClient.use((client) =>
+      Effect.andThen(QueryClient, (client) =>
         client.invalidateQueries({ queryKey: [namespaceKey], exact: false }),
       ).pipe(Effect.orDie),
     refetchQuery: (...variables: QueryParams) =>
-      QueryClient.use((client) =>
+      Effect.andThen(QueryClient, (client) =>
         client.refetchQueries({
           queryKey:
             variables.length === 0
@@ -150,7 +150,7 @@ export function makeHelpers<Data, Variables = void>(
         }),
       ).pipe(Effect.orDie),
     refetchAllQueries: () =>
-      QueryClient.use((client) =>
+      Effect.andThen(QueryClient, (client) =>
         client.refetchQueries({ queryKey: [namespaceKey], exact: false }),
       ).pipe(Effect.orDie),
   };

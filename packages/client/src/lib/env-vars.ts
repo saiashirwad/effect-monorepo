@@ -9,8 +9,8 @@ const EnvVars = Schema.Struct({
 
 export const envVars = pipe(
   {
-    API_URL: import.meta.env.VITE_PUBLIC_API_URL,
-  } satisfies Record<keyof typeof EnvVars.Encoded, string>,
+    API_URL: import.meta.env.VITE_PUBLIC_API_URL as unknown,
+  } satisfies Record<keyof typeof EnvVars.Encoded, unknown>,
   Schema.decodeUnknownEither(EnvVars),
   Either.getOrElse((parseIssue) => {
     throw new Error(
