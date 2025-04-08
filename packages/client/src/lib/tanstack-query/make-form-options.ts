@@ -1,7 +1,8 @@
-import { formOptions, type FormValidateOrFn, type FormValidators } from "@tanstack/react-form";
+import { formOptions } from "@tanstack/react-form";
 import * as Array from "effect/Array";
 import * as Either from "effect/Either";
 import { pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import { ArrayFormatter } from "effect/ParseResult";
 import * as Schema from "effect/Schema";
 
@@ -76,21 +77,6 @@ export const validateWithSchema =
 
 type HandledValidatorKey = "onSubmit" | "onChange" | "onBlur";
 
-type SpecificValidators<
-  FormData extends Record<PropertyKey, any>,
-  Key extends HandledValidatorKey,
-  ValidatorFn extends FormValidateOrFn<FormData>,
-> = FormValidators<
-  FormData,
-  undefined, // onMount
-  Key extends "onChange" ? ValidatorFn : undefined,
-  undefined, // onChangeAsync
-  Key extends "onBlur" ? ValidatorFn : undefined,
-  undefined, // onBlurAsync
-  Key extends "onSubmit" ? ValidatorFn : undefined,
-  undefined // onSubmitAsync
->;
-
 export const makeFormOptions = <
   SchemaA,
   SchemaI extends Record<PropertyKey, any>,
@@ -102,37 +88,15 @@ export const makeFormOptions = <
 }) => {
   const specificValidatorFn = validateWithSchema(opts.schema);
 
-  const validators = ((): SpecificValidators<SchemaI, ValidatorKey, typeof specificValidatorFn> => {
-    switch (opts.validator) {
-      case "onSubmit":
-        return { onSubmit: specificValidatorFn } as SpecificValidators<
-          SchemaI,
-          ValidatorKey,
-          typeof specificValidatorFn
-        >;
-      case "onChange":
-        return { onChange: specificValidatorFn } as SpecificValidators<
-          SchemaI,
-          ValidatorKey,
-          typeof specificValidatorFn
-        >;
-      case "onBlur":
-        return { onBlur: specificValidatorFn } as SpecificValidators<
-          SchemaI,
-          ValidatorKey,
-          typeof specificValidatorFn
-        >;
-      default: {
-        const _exhaustiveCheck: never = opts.validator;
-        throw new Error(`Unhandled validator key: ${_exhaustiveCheck}`);
-      }
-    }
-  })();
+  const validators = Match.value(opts.validator satisfies HandledValidatorKey).pipe(
+    Match.when("onSubmit", () => ({ onSubmit: specificValidatorFn })),
+    Match.when("onChange", () => ({ onChange: specificValidatorFn })),
+    Match.when("onBlur", () => ({ onBlur: specificValidatorFn })),
+    Match.exhaustive,
+  );
 
-  const options = {
+  return formOptions({
     defaultValues: opts.defaultValues,
     validators,
-  };
-
-  return formOptions(options);
+  });
 };
