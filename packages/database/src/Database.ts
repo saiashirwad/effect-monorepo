@@ -99,10 +99,11 @@ const makeService = (config: Config) =>
             message: "[Database] Failed to connect: timeout",
           }),
       }),
-      Effect.orElseFail(
-        () =>
+      Effect.catchTag(
+        "UnknownException",
+        (error) =>
           new DatabaseConnectionLostError({
-            cause: new Error("[Database] Failed to connect"),
+            cause: error.cause,
             message: "[Database] Failed to connect",
           }),
       ),
