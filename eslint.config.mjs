@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import enforceReactNamespace from "./scripts/eslint-rules/enforce-react-namespace.mjs";
+import noDeepRelativeImports from "./scripts/eslint-rules/no-deep-relative-imports.mjs";
 import noEffectNamespaceImports from "./scripts/eslint-rules/no-effect-namespace-imports.mjs";
 import noRelativeImportOutsidePackage from "./scripts/eslint-rules/no-relative-import-outside-package.mjs";
 
@@ -68,6 +69,12 @@ export default [
       "enforce-react-namespace": {
         rules: {
           "enforce-react-namespace": enforceReactNamespace,
+        },
+      },
+
+      "no-deep-relative-imports": {
+        rules: {
+          "no-deep-relative-imports": noDeepRelativeImports,
         },
       },
     },
@@ -334,28 +341,19 @@ export default [
 
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-    },
-  },
-  {
-    files: ["packages/client/**/*.{ts,tsx,js,jsx}"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["../../*"],
-              message: "Use absolute imports instead of relative parent imports (../)",
-            },
-          ],
-        },
-      ],
 
       "enforce-react-namespace/enforce-react-namespace": "error",
+      "no-deep-relative-imports/no-deep-relative-imports": "error",
     },
   },
   {
-    files: ["packages/{server,domain,database}/**/*.{ts,tsx,js,jsx}"],
+    files: ["packages/server/**/*.{ts,tsx,js,jsx}"],
+    rules: {
+      "no-deep-relative-imports/no-deep-relative-imports": "error",
+    },
+  },
+  {
+    files: ["packages/{domain,database}/**/*.{ts,tsx,js,jsx}"],
     rules: {
       "no-restricted-imports": "off",
     },

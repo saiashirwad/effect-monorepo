@@ -1,7 +1,7 @@
+import { Api } from "@/api.js";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { Api } from "../../api.js";
 import { TodosRepository } from "./todos-repository.js";
 
 export const TodosLive = HttpApiBuilder.group(
