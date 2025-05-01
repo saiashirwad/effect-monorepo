@@ -20,7 +20,7 @@ export const SseLive = HttpApiBuilder.group(
     const kaStream = Stream.repeat(Effect.succeed(":keep-alive"), Schedule.fixed("3 seconds"));
 
     return handlers
-      .handleRaw("sse", () =>
+      .handleRaw("connect", () =>
         Effect.gen(function* () {
           const currentUser = yield* CurrentUser;
 
@@ -37,7 +37,11 @@ export const SseLive = HttpApiBuilder.group(
             sseManager.unregisterConnection({ connectionId, userId: currentUser.userId }),
           );
 
-          const bodyStream = Stream.merge(kaStream, Stream.fromQueue(queue)).pipe(
+          const eventsStream = Stream.fromQueue(queue).pipe(
+            Stream.map((eventString) => `data: ${eventString}`),
+          );
+
+          const bodyStream = Stream.merge(kaStream, eventsStream).pipe(
             Stream.map((line) => textEncoder.encode(`${line}\n\n`)),
           );
 

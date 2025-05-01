@@ -1,5 +1,6 @@
 import { SseContract } from "@org/domain/api/Contracts";
 import { type UserId } from "@org/domain/EntityIds";
+import { CurrentUser } from "@org/domain/Policy";
 import * as Array from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -18,73 +19,111 @@ export class SseManager extends Effect.Service<SseManager>()("SseManager", {
   effect: Effect.gen(function* () {
     const connectionsRef = yield* Ref.make(MutableHashMap.empty<UserId, Array<ActiveConnection>>());
 
-    return {
-      registerConnection: ({
-        connectionId,
-        queue,
-        userId,
-      }: {
-        userId: UserId;
-        connectionId: string;
-        queue: Queue.Queue<string>;
-      }) =>
-        Ref.update(connectionsRef, (map) =>
-          MutableHashMap.modifyAt(map, userId, (activeConnections) =>
-            activeConnections.pipe(
-              Option.map(Array.append({ connectionId, queue })),
-              Option.orElse(() => Option.some(Array.make({ connectionId, queue }))),
-            ),
+    const registerConnection = ({
+      connectionId,
+      queue,
+      userId,
+    }: {
+      userId: UserId;
+      connectionId: string;
+      queue: Queue.Queue<string>;
+    }) =>
+      Ref.update(connectionsRef, (map) =>
+        MutableHashMap.modifyAt(map, userId, (activeConnections) =>
+          activeConnections.pipe(
+            Option.map(Array.append({ connectionId, queue })),
+            Option.orElse(() => Option.some(Array.make({ connectionId, queue }))),
           ),
         ),
+      );
 
-      unregisterConnection: ({ connectionId, userId }: { userId: UserId; connectionId: string }) =>
-        Ref.modify(connectionsRef, (map) => {
-          const connectionToRemove = MutableHashMap.get(map, userId).pipe(
-            Option.flatMap((connections) =>
-              Array.findFirst(
-                connections,
-                (connection) => connection.connectionId === connectionId,
-              ),
+    const unregisterConnection = ({
+      connectionId,
+      userId,
+    }: {
+      userId: UserId;
+      connectionId: string;
+    }) =>
+      Ref.modify(connectionsRef, (map) => {
+        const connectionToRemove = MutableHashMap.get(map, userId).pipe(
+          Option.flatMap((connections) =>
+            Array.findFirst(connections, (connection) => connection.connectionId === connectionId),
+          ),
+        );
+
+        if (Option.isNone(connectionToRemove)) {
+          return [Effect.void, map] as const;
+        }
+
+        return [
+          connectionToRemove.value.queue.shutdown,
+          pipe(
+            map,
+            MutableHashMap.modify(
+              userId,
+              Array.filter((connection) => connection.connectionId !== connectionId),
             ),
-          );
+          ),
+        ];
+      }).pipe(Effect.flatten);
 
-          if (Option.isNone(connectionToRemove)) {
-            return [Effect.void, map] as const;
-          }
+    const notifyUser = ({ event, userId }: { userId: UserId; event: SseContract.Events }) =>
+      Effect.gen(function* () {
+        const connections = yield* Ref.get(connectionsRef);
+        const connectionsForUser = MutableHashMap.get(connections, userId);
+        if (Option.isNone(connectionsForUser) || connectionsForUser.value.length === 0) {
+          return;
+        }
 
-          return [
-            connectionToRemove.value.queue.shutdown,
-            pipe(
-              map,
-              MutableHashMap.modify(
-                userId,
-                Array.filter((connection) => connection.connectionId !== connectionId),
-              ),
-            ),
-          ];
-        }).pipe(Effect.flatten),
+        const encodedEvent = yield* Schema.encode(Schema.parseJson(SseContract.Events))(event).pipe(
+          Effect.orDie,
+        );
 
-      notifyUser: ({ event, userId }: { userId: UserId; event: SseContract.Events }) =>
-        Effect.gen(function* () {
-          const connections = yield* Ref.get(connectionsRef);
-          const connectionsForUser = MutableHashMap.get(connections, userId);
-          if (Option.isNone(connectionsForUser) || connectionsForUser.value.length === 0) {
-            return;
-          }
+        yield* Effect.forEach(
+          connectionsForUser.value,
+          (connection) => connection.queue.offer(encodedEvent),
+          {
+            concurrency: "unbounded",
+            discard: true,
+          },
+        );
+      });
 
-          const encodedEvent = yield* Schema.encode(Schema.parseJson(SseContract.Events))(
-            event,
-          ).pipe(Effect.orDie);
+    const notifyCurrentUser = (event: SseContract.Events) =>
+      Effect.gen(function* () {
+        const currentUser = yield* CurrentUser;
+        yield* notifyUser({ event, userId: currentUser.userId });
+      });
 
-          yield* Effect.forEach(
-            connectionsForUser.value,
-            (connection) => connection.queue.offer(encodedEvent),
-            {
-              concurrency: "unbounded",
-              discard: true,
-            },
-          );
-        }),
+    const notifyAll = ({ event }: { event: SseContract.Events }) =>
+      Effect.gen(function* () {
+        const connectionsMap = yield* Ref.get(connectionsRef);
+        const allConnections = Array.flatten(MutableHashMap.values(connectionsMap));
+
+        if (allConnections.length === 0) {
+          return;
+        }
+
+        const encodedEvent = yield* Schema.encode(Schema.parseJson(SseContract.Events))(event).pipe(
+          Effect.orDie,
+        );
+
+        yield* Effect.forEach(
+          allConnections,
+          (connection) => connection.queue.offer(encodedEvent),
+          {
+            concurrency: "unbounded",
+            discard: true,
+          },
+        );
+      });
+
+    return {
+      registerConnection,
+      unregisterConnection,
+      notifyUser,
+      notifyCurrentUser,
+      notifyAll,
     };
   }),
 }) {}

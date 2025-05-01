@@ -61,4 +61,44 @@ describe("SseManager", () => {
         expect(queueOtherIsShutdown).toBe(true);
       }).pipe(Effect.provide(SseManager.Default)),
   );
+
+  it.scoped("should send a message to all connections with notifyAll", () =>
+    Effect.gen(function* () {
+      const manager = yield* SseManager;
+      const userId1 = testUserId(1);
+      const userId2 = testUserId(2);
+      const connectionId1 = "conn-1";
+      const connectionId2 = "conn-2";
+      const queue1 = yield* Queue.unbounded<string>();
+      const queue2 = yield* Queue.unbounded<string>();
+
+      yield* manager.registerConnection({
+        userId: userId1,
+        connectionId: connectionId1,
+        queue: queue1,
+      });
+      yield* manager.registerConnection({
+        userId: userId2,
+        connectionId: connectionId2,
+        queue: queue2,
+      });
+
+      yield* manager.notifyAll({ event: SampleEvent });
+
+      const received1 = yield* queue1.take;
+      const received2 = yield* queue2.take;
+      const decoded1 = yield* decodeMessage(received1).pipe(Effect.orDie);
+      const decoded2 = yield* decodeMessage(received2).pipe(Effect.orDie);
+      expect(decoded1).toEqual(SampleEvent);
+      expect(decoded2).toEqual(SampleEvent);
+
+      yield* manager.unregisterConnection({ userId: userId1, connectionId: connectionId1 });
+      yield* manager.unregisterConnection({ userId: userId2, connectionId: connectionId2 });
+
+      const queue1IsShutdown = yield* queue1.isShutdown;
+      const queue2IsShutdown = yield* queue2.isShutdown;
+      expect(queue1IsShutdown).toBe(true);
+      expect(queue2IsShutdown).toBe(true);
+    }).pipe(Effect.provide(SseManager.Default)),
+  );
 });

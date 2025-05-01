@@ -8,6 +8,7 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { Toaster } from "./components/ui";
+import { SseQueries } from "./data-access/sse-queries";
 import "./index.css";
 import { ApiClient } from "./layers/api-client";
 import { NetworkMonitor } from "./layers/common/network-monitor";
@@ -61,6 +62,7 @@ const InnerProviders: React.FC = () => {
       <ReactQueryDevtools initialIsOpen={false} />
 
       <RuntimeProvider runtime={runtime}>
+        <SseQueries.SseConnector />
         <RouterProvider router={router} />
       </RuntimeProvider>
     </QueryClientProvider>
