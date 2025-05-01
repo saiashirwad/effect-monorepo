@@ -1,7 +1,8 @@
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
-import { BunHttpServer, BunRuntime } from "@effect/platform-bun";
+import { NodeHttpServer, NodeRuntime } from "@effect/platform-node";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
+import * as HttpServer from "@effect/platform/HttpServer";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { Database } from "@org/database/index";
@@ -14,6 +15,7 @@ import { createServer } from "node:http";
 import { Api } from "./api.js";
 import { EnvVars } from "./common/env-vars.js";
 import { UserAuthMiddlewareLive } from "./public/middlewares/auth-middleware-live.js";
+import { SseLive } from "./public/sse/sse-live.js";
 import { TodosLive } from "./public/todos/todos-live.js";
 
 dotenv.config({
@@ -21,7 +23,7 @@ dotenv.config({
 });
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
-  Layer.provide([TodosLive]),
+  Layer.provide([TodosLive, SseLive]),
   Layer.provide([UserAuthMiddlewareLive]),
 );
 
@@ -67,13 +69,14 @@ const CorsLive = Layer.unwrapEffect(
 );
 
 const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
+  HttpServer.withLogAddress,
   Layer.provide(CorsLive),
   Layer.provide(ApiLive),
   Layer.merge(Layer.effectDiscard(Database.Database.use((db) => db.setupConnectionListeners))),
   Layer.provide(DatabaseLive),
   Layer.provide(NodeSdkLive),
   Layer.provide(EnvVars.Default),
-  Layer.provide(BunHttpServer.layer(createServer)),
+  Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
 );
 
 Layer.launch(HttpLive).pipe(
@@ -94,5 +97,5 @@ Layer.launch(HttpLive).pipe(
       ),
     ),
   }),
-  BunRuntime.runMain({}),
+  NodeRuntime.runMain(),
 );

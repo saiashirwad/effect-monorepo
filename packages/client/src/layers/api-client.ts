@@ -8,8 +8,12 @@ import * as Effect from "effect/Effect";
 export class ApiClient extends Effect.Service<ApiClient>()("ApiClient", {
   accessors: true,
   dependencies: [FetchHttpClient.layer],
-  effect: HttpApiClient.make(DomainApi, {
-    baseUrl: envVars.API_URL.toString(),
-    transformClient: (client) => client.pipe(HttpClient.retryTransient({ times: 3 })),
+  effect: Effect.gen(function* () {
+    return {
+      client: yield* HttpApiClient.make(DomainApi, {
+        baseUrl: envVars.API_URL.toString(),
+        transformClient: (client) => client.pipe(HttpClient.retryTransient({ times: 3 })),
+      }),
+    };
   }),
 }) {}

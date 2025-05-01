@@ -11,7 +11,8 @@ export namespace TodosQueries {
   export const useTodosQuery = () => {
     return useEffectQuery({
       queryKey: todosKey(),
-      queryFn: () => Effect.flatMap(ApiClient, (client) => client.todos.get()),
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      queryFn: () => ApiClient.use(({ client }) => client.todos.get()),
     });
   };
 
@@ -19,7 +20,8 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.createTodo"],
       mutationFn: (todo: TodosContract.CreateTodoPayload) =>
-        Effect.flatMap(ApiClient, (client) => client.todos.create({ payload: todo })).pipe(
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        ApiClient.use(({ client }) => client.todos.create({ payload: todo })).pipe(
           Effect.tap((createdTodo) =>
             todosHelpers.setData((draft) => {
               draft.unshift(createdTodo);
@@ -34,7 +36,8 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.updateTodo"],
       mutationFn: (todo: TodosContract.Todo) =>
-        Effect.flatMap(ApiClient, (client) => client.todos.update({ payload: todo })).pipe(
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        ApiClient.use(({ client }) => client.todos.update({ payload: todo })).pipe(
           Effect.tap((updatedTodo) =>
             todosHelpers.setData((draft) => {
               const index = draft.findIndex((t) => t.id === updatedTodo.id);
@@ -52,7 +55,8 @@ export namespace TodosQueries {
     return useEffectMutation({
       mutationKey: ["TodosQueries.deleteTodo"],
       mutationFn: (id: TodoId) =>
-        Effect.flatMap(ApiClient, (client) => client.todos.delete({ payload: id })).pipe(
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        ApiClient.use(({ client }) => client.todos.delete({ payload: id })).pipe(
           Effect.tap(() =>
             todosHelpers.setData((draft) => {
               const index = draft.findIndex((t) => t.id === id);

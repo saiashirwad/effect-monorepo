@@ -3,9 +3,10 @@ import type { ViteUserConfig } from "vitest/config";
 
 const alias = (name: string) => {
   const target = process.env.TEST_DIST !== undefined ? "dist/dist/esm" : "src";
+  const scopedName = `@org/${name}`;
   return {
-    [`${name}/test`]: path.join(__dirname, "packages", name, "test"),
-    [`${name}`]: path.join(__dirname, "packages", name, target),
+    [`${scopedName}/test`]: path.join(__dirname, "packages", name, "test"),
+    [`${scopedName}`]: path.join(__dirname, "packages", name, target),
   };
 };
 
@@ -18,6 +19,9 @@ const config: ViteUserConfig = {
     exclude: ["bun:sqlite"],
   },
   test: {
+    onConsoleLog: (log) => {
+      console.log(log);
+    },
     setupFiles: [path.join(__dirname, "setupTests.ts")],
     fakeTimers: {
       toFake: undefined,
