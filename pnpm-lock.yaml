@@ -6,6 +6,17 @@ settings:
 
 overrides:
   vitest: ^2.0.5
+  effect: 3.14.16
+  "@effect/platform": 0.80.16
+  "@effect/experimental": 0.44.16
+  "@effect/opentelemetry": 0.45.6
+  "@effect/platform-node": 0.77.4
+  "@effect/cluster": 0.30.4
+  "@effect/sql": 0.33.16
+  "@effect/build-utils": 0.7.9
+  "@effect/eslint-plugin": 0.3.0
+  "@effect/language-service": 0.9.1
+  "@effect/vitest": 0.20.17
 
 patchedDependencies:
   babel-plugin-annotate-pure-calls@0.4.0:
@@ -715,10 +726,10 @@ packages:
         integrity: sha512-A/RUPHw3XjpQhoGaBPHKrDbtJdsahDXkZbQffA624xfBUg4CGpp7n6Ga493rI0fWupEep6GO/oxwwyrt6EqUEQ==,
       }
     peerDependencies:
-      "@effect/platform": ^0.80.16
+      "@effect/platform": 0.80.16
       "@effect/rpc": ^0.56.4
-      "@effect/sql": ^0.33.16
-      effect: ^3.14.16
+      "@effect/sql": 0.33.16
+      effect: 3.14.16
 
   "@effect/eslint-plugin@0.3.0":
     resolution:
@@ -732,8 +743,8 @@ packages:
         integrity: sha512-CkZLJKkXV9UiAkaZKICvpqkzHfKw1qligPk/aEV3aaTQY5PjFh2QhhKzESYmAs76slQtZalwkItGPhnolCPmiw==,
       }
     peerDependencies:
-      "@effect/platform": ^0.80.16
-      effect: ^3.14.16
+      "@effect/platform": 0.80.16
+      effect: 3.14.16
       ioredis: ^5
       lmdb: ^3
     peerDependenciesMeta:
@@ -762,7 +773,7 @@ packages:
       "@opentelemetry/sdk-trace-node": ^1.25
       "@opentelemetry/sdk-trace-web": ^1.25
       "@opentelemetry/semantic-conventions": ^1.25
-      effect: ^3.14.6
+      effect: 3.14.16
     peerDependenciesMeta:
       "@opentelemetry/sdk-logs":
         optional: true
@@ -781,11 +792,11 @@ packages:
         integrity: sha512-FSQW8/EAvPmcnEQjKxMee2cLoAQQzPtY+P0vkXNx5pqeYFnveRvFJw+CPjFcv61vHrvzmvdRqQe3wF/Q/iLorQ==,
       }
     peerDependencies:
-      "@effect/cluster": ^0.30.4
-      "@effect/platform": ^0.80.16
+      "@effect/cluster": 0.30.4
+      "@effect/platform": 0.80.16
       "@effect/rpc": ^0.56.4
-      "@effect/sql": ^0.33.16
-      effect: ^3.14.16
+      "@effect/sql": 0.33.16
+      effect: 3.14.16
 
   "@effect/platform-node@0.77.4":
     resolution:
@@ -793,11 +804,11 @@ packages:
         integrity: sha512-bQ6eAVh/X5L/17rnebvaOK7g59HM5xjay5/w2Lo3zIrkF0i7hCWs8HNbo+oFZ9/vQT1I9Qsr8HBecNGHo9fNcg==,
       }
     peerDependencies:
-      "@effect/cluster": ^0.30.4
-      "@effect/platform": ^0.80.16
+      "@effect/cluster": 0.30.4
+      "@effect/platform": 0.80.16
       "@effect/rpc": ^0.56.4
-      "@effect/sql": ^0.33.16
-      effect: ^3.14.16
+      "@effect/sql": 0.33.16
+      effect: 3.14.16
 
   "@effect/platform@0.80.16":
     resolution:
@@ -805,7 +816,7 @@ packages:
         integrity: sha512-DuZNpQqA3Q+0dvYuo/k0yiL4N7VPgSttMCblHr5DgVwMMalodxlZL68U+WJKg3YpACBPVRij+6St9Xm8U1rudQ==,
       }
     peerDependencies:
-      effect: ^3.14.16
+      effect: 3.14.16
 
   "@effect/rpc@0.56.4":
     resolution:
@@ -813,8 +824,8 @@ packages:
         integrity: sha512-RivUi98qQz6o4Ir/mO9lb4gnXrGK5/6Rxq7EtFayxkRfKHHI1YNkNiZDqne88m4gIW4vmwfdo1hdxaX74Y7ShA==,
       }
     peerDependencies:
-      "@effect/platform": ^0.80.16
-      effect: ^3.14.16
+      "@effect/platform": 0.80.16
+      effect: 3.14.16
 
   "@effect/sql@0.33.16":
     resolution:
@@ -822,9 +833,9 @@ packages:
         integrity: sha512-kbBr0J6dj0l/w2QXY0nE6/B7f8ZvqXx/p5ViSGD5OcfQqNaxuiKCTlXUP9e7eQaT19EpOZ4kpEBDHnWPvVAw9w==,
       }
     peerDependencies:
-      "@effect/experimental": ^0.44.16
-      "@effect/platform": ^0.80.16
-      effect: ^3.14.16
+      "@effect/experimental": 0.44.16
+      "@effect/platform": 0.80.16
+      effect: 3.14.16
 
   "@effect/vitest@0.20.17":
     resolution:
@@ -832,7 +843,7 @@ packages:
         integrity: sha512-CFieUpcFCMkaeppdTztMaXEQTA6SikCQig5fAQDbS7HxSeEf2NBeoojht0//357tKiueEqM6GRG05x9axO+5iw==,
       }
     peerDependencies:
-      effect: ^3.14.16
+      effect: 3.14.16
       vitest: ^2.0.5
 
   "@esbuild-kit/core-utils@3.3.2":

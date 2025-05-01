@@ -19,7 +19,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@effect/platform": "0.80.16",
+    "@effect/platform": "*",
     "@org/domain": "workspace:^",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-checkbox": "^1.1.4",
@@ -34,7 +34,7 @@
     "@tanstack/react-router": "^1.102.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "effect": "3.14.16",
+    "effect": "*",
     "lucide-react": "^0.475.0",
     "mutative": "^1.1.0",
     "react": "^19.0.0",

@@ -68,7 +68,18 @@
   },
   "pnpm": {
     "overrides": {
-      "vitest": "^2.0.5"
+      "vitest": "^2.0.5",
+      "effect": "3.14.16",
+      "@effect/platform": "0.80.16",
+      "@effect/experimental": "0.44.16",
+      "@effect/opentelemetry": "0.45.6",
+      "@effect/platform-node": "0.77.4",
+      "@effect/cluster": "0.30.4",
+      "@effect/sql": "0.33.16",
+      "@effect/build-utils": "0.7.9",
+      "@effect/eslint-plugin": "0.3.0",
+      "@effect/language-service": "0.9.1",
+      "@effect/vitest": "0.20.17"
     },
     "patchedDependencies": {
       "babel-plugin-annotate-pure-calls@0.4.0": "patches/babel-plugin-annotate-pure-calls@0.4.0.patch"

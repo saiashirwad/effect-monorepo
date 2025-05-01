@@ -28,9 +28,9 @@
     "db:studio": "NODE_OPTIONS='--import tsx' drizzle-kit studio"
   },
   "dependencies": {
-    "@effect/platform": "0.80.16",
+    "@effect/platform": "*",
     "drizzle-orm": "0.39.2",
-    "effect": "3.14.16",
+    "effect": "*",
     "pg": "8.13.1"
   },
   "effect": {
