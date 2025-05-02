@@ -22,6 +22,80 @@ import * as Schema from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import type { Simplify } from "effect/Types";
 
+const paramsRegex = /:(\w+)/g;
+
+const compilePath = (path: string) => {
+  const segments = path.split(paramsRegex);
+  const len = segments.length;
+  if (len === 1) {
+    return (_: any) => path;
+  }
+  return (params: Record<string, string>) => {
+    let url = segments[0]!;
+    for (let i = 1; i < len; i++) {
+      if (i % 2 === 0) {
+        url += segments[i]!;
+      } else {
+        url += params[segments[i]!];
+      }
+    }
+    return url;
+  };
+};
+
+const HttpBodyFromSelf = Schema.declare(HttpBody.isHttpBody);
+
+const payloadSchemaBody = (schema: Schema.Schema.All): Schema.Schema<any, HttpBody.HttpBody> => {
+  const members = schema.ast._tag === "Union" ? schema.ast.types : [schema.ast];
+  return Schema.Union(...members.map(bodyFromPayload)) as any;
+};
+
+const bodyFromPayloadCache = globalValue(
+  "@org/UnsafeHttpApiClient/bodyFromPayloadCache",
+  () => new WeakMap<AST.AST, Schema.Schema.Any>(),
+);
+
+const bodyFromPayload = (ast: AST.AST) => {
+  if (bodyFromPayloadCache.has(ast)) {
+    return bodyFromPayloadCache.get(ast)!;
+  }
+  const schema = Schema.make(ast);
+  const encoding = HttpApiSchema.getEncoding(ast);
+  const transform = Schema.transformOrFail(HttpBodyFromSelf, schema, {
+    decode(fromA, _, ast) {
+      return ParseResult.fail(new ParseResult.Forbidden(ast, fromA, "encode only schema"));
+    },
+    encode(toI, _, ast) {
+      switch (encoding.kind) {
+        case "Json": {
+          return HttpBody.json(toI).pipe(
+            ParseResult.mapError(
+              (error) => new ParseResult.Type(ast, toI, `Could not encode as JSON: ${error}`),
+            ),
+          );
+        }
+        case "Text": {
+          if (typeof toI !== "string") {
+            return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a string"));
+          }
+          return ParseResult.succeed(HttpBody.text(toI));
+        }
+        case "UrlParams": {
+          return ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as any)));
+        }
+        case "Uint8Array": {
+          if (!(toI instanceof Uint8Array)) {
+            return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a Uint8Array"));
+          }
+          return ParseResult.succeed(HttpBody.uint8Array(toI));
+        }
+      }
+    },
+  });
+  bodyFromPayloadCache.set(ast, transform);
+  return transform;
+};
+
 export type UnsafeClient<Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError> = Simplify<
   {
     readonly [Group in Extract<
@@ -36,6 +110,8 @@ export type UnsafeClient<Groups extends HttpApiGroup.HttpApiGroup.Any, ApiError>
     readonly [Method in UnsafeClient.TopLevelMethods<Groups, ApiError> as Method[0]]: Method[1];
   }
 >;
+
+type OmitWithResponse<T> = T extends object ? Omit<T, "withResponse"> : T;
 
 export declare namespace UnsafeClient {
   export type Group<
@@ -75,12 +151,14 @@ export declare namespace UnsafeClient {
   ]
     ? (
         request: Simplify<
-          HttpApiEndpoint.HttpApiEndpoint.ClientRequest<
-            _Path,
-            _UrlParams,
-            _Payload,
-            _Headers,
-            false
+          OmitWithResponse<
+            HttpApiEndpoint.HttpApiEndpoint.ClientRequest<
+              _Path,
+              _UrlParams,
+              _Payload,
+              _Headers,
+              false
+            >
           >
         >,
       ) => Effect.Effect<
@@ -145,7 +223,7 @@ const makeUnsafeClientInternal = <
       options.baseUrl === undefined
         ? identity
         : HttpClient.mapRequest(HttpClientRequest.prependUrl(options.baseUrl.toString())),
-      options.transformClient === undefined ? identity : options.transformClient,
+      options.transformClient ?? identity,
     );
     HttpApi.reflect(api as any, {
       ...(options.predicate && { predicate: options.predicate }),
@@ -223,80 +301,6 @@ const makeUnsafeClientInternal = <
     });
   });
 
-const paramsRegex = /:(\w+)/g;
-
-const compilePath = (path: string) => {
-  const segments = path.split(paramsRegex);
-  const len = segments.length;
-  if (len === 1) {
-    return (_: any) => path;
-  }
-  return (params: Record<string, string>) => {
-    let url = segments[0]!;
-    for (let i = 1; i < len; i++) {
-      if (i % 2 === 0) {
-        url += segments[i]!;
-      } else {
-        url += params[segments[i]!];
-      }
-    }
-    return url;
-  };
-};
-
-const HttpBodyFromSelf = Schema.declare(HttpBody.isHttpBody);
-
-const payloadSchemaBody = (schema: Schema.Schema.All): Schema.Schema<any, HttpBody.HttpBody> => {
-  const members = schema.ast._tag === "Union" ? schema.ast.types : [schema.ast];
-  return Schema.Union(...members.map(bodyFromPayload)) as any;
-};
-
-const bodyFromPayloadCache = globalValue(
-  "@org/UnsafeHttpApiClient/bodyFromPayloadCache",
-  () => new WeakMap<AST.AST, Schema.Schema.Any>(),
-);
-
-const bodyFromPayload = (ast: AST.AST) => {
-  if (bodyFromPayloadCache.has(ast)) {
-    return bodyFromPayloadCache.get(ast)!;
-  }
-  const schema = Schema.make(ast);
-  const encoding = HttpApiSchema.getEncoding(ast);
-  const transform = Schema.transformOrFail(HttpBodyFromSelf, schema, {
-    decode(fromA, _, ast) {
-      return ParseResult.fail(new ParseResult.Forbidden(ast, fromA, "encode only schema"));
-    },
-    encode(toI, _, ast) {
-      switch (encoding.kind) {
-        case "Json": {
-          return HttpBody.json(toI).pipe(
-            ParseResult.mapError(
-              (error) => new ParseResult.Type(ast, toI, `Could not encode as JSON: ${error}`),
-            ),
-          );
-        }
-        case "Text": {
-          if (typeof toI !== "string") {
-            return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a string"));
-          }
-          return ParseResult.succeed(HttpBody.text(toI));
-        }
-        case "UrlParams": {
-          return ParseResult.succeed(HttpBody.urlParams(UrlParams.fromInput(toI as any)));
-        }
-        case "Uint8Array": {
-          if (!(toI instanceof Uint8Array)) {
-            return ParseResult.fail(new ParseResult.Type(ast, toI, "Expected a Uint8Array"));
-          }
-          return ParseResult.succeed(HttpBody.uint8Array(toI));
-        }
-      }
-    },
-  });
-  bodyFromPayloadCache.set(ast, transform);
-  return transform;
-};
-
 export const make = <
   ApiId extends string,
   Groups extends HttpApiGroup.HttpApiGroup.Any,
@@ -327,96 +331,6 @@ export const make = <
     },
     onEndpoint({ endpoint, endpointFn, group }) {
       (group.topLevel ? client : (client[group.identifier] as any))[endpoint.name] = endpointFn;
-    },
-  }).pipe(Effect.map(() => client)) as any;
-};
-
-export const group = <
-  ApiId extends string,
-  Groups extends HttpApiGroup.HttpApiGroup.Any,
-  ApiError,
-  ApiR,
-  const GroupName extends Groups["identifier"],
->(
-  api: HttpApi.HttpApi<ApiId, Groups, ApiError, ApiR>,
-  groupId: GroupName,
-  options?: {
-    readonly transformClient?:
-      | ((client: HttpClient.HttpClient) => HttpClient.HttpClient)
-      | undefined;
-    readonly baseUrl?: URL | string | undefined;
-  },
-): Effect.Effect<
-  UnsafeClient.Group<Groups, GroupName, ApiError>,
-  never,
-  | HttpApiMiddleware.HttpApiMiddleware.Without<
-      | ApiR
-      | HttpApiGroup.HttpApiGroup.ClientContext<
-          HttpApiGroup.HttpApiGroup.WithName<Groups, GroupName>
-        >
-    >
-  | HttpClient.HttpClient
-> => {
-  const client: Record<string, any> = {};
-  return makeUnsafeClientInternal(api, {
-    ...options,
-    predicate: ({ group }) => group.identifier === groupId,
-    onEndpoint({ endpoint, endpointFn }) {
-      client[endpoint.name] = endpointFn;
-    },
-  }).pipe(Effect.map(() => client)) as any;
-};
-
-export const endpoint = <
-  ApiId extends string,
-  Groups extends HttpApiGroup.HttpApiGroup.Any,
-  ApiError,
-  ApiR,
-  const GroupName extends HttpApiGroup.HttpApiGroup.Name<Groups>,
-  const EndpointName extends HttpApiEndpoint.HttpApiEndpoint.Name<
-    HttpApiGroup.HttpApiGroup.EndpointsWithName<Groups, GroupName>
-  >,
->(
-  api: HttpApi.HttpApi<ApiId, Groups, ApiError, ApiR>,
-  groupName: GroupName,
-  endpointName: EndpointName,
-  options?: {
-    readonly transformClient?:
-      | ((client: HttpClient.HttpClient) => HttpClient.HttpClient)
-      | undefined;
-    readonly baseUrl?: URL | string | undefined;
-  },
-): Effect.Effect<
-  UnsafeClient.Method<
-    HttpApiEndpoint.HttpApiEndpoint.WithName<
-      HttpApiGroup.HttpApiGroup.Endpoints<HttpApiGroup.HttpApiGroup.WithName<Groups, GroupName>>,
-      EndpointName
-    >,
-    HttpApiGroup.HttpApiGroup.Error<HttpApiGroup.HttpApiGroup.WithName<Groups, GroupName>>,
-    ApiError
-  >,
-  never,
-  | HttpApiMiddleware.HttpApiMiddleware.Without<
-      | ApiR
-      | HttpApiGroup.HttpApiGroup.Context<HttpApiGroup.HttpApiGroup.WithName<Groups, GroupName>>
-      | HttpApiEndpoint.HttpApiEndpoint.ContextWithName<
-          HttpApiGroup.HttpApiGroup.EndpointsWithName<Groups, GroupName>,
-          EndpointName
-        >
-      | HttpApiEndpoint.HttpApiEndpoint.ErrorContextWithName<
-          HttpApiGroup.HttpApiGroup.EndpointsWithName<Groups, GroupName>,
-          EndpointName
-        >
-    >
-  | HttpClient.HttpClient
-> => {
-  let client: any = undefined;
-  return makeUnsafeClientInternal(api, {
-    ...options,
-    predicate: ({ endpoint, group }) =>
-      group.identifier === groupName && endpoint.name === endpointName,
-    onEndpoint({ endpointFn }) {
-      client = endpointFn;
     },
   }).pipe(Effect.map(() => client)) as any;
 };
