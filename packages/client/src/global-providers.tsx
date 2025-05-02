@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import * as Duration from "effect/Duration";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
 import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
 import { ThemeProvider } from "./components/providers/theme-provider";
@@ -15,6 +16,7 @@ import { NetworkMonitor } from "./layers/common/network-monitor";
 import { QueryClient } from "./layers/common/query-client";
 import { type LiveManagedRuntime } from "./layers/live-layer";
 import { RuntimeProvider } from "./layers/runtime/runtime-provider";
+import { envVars } from "./lib/env-vars";
 import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({ routeTree });
@@ -52,6 +54,7 @@ const InnerProviders: React.FC = () => {
           NetworkMonitor.Default,
           ApiClient.Default,
           QueryClient.make(queryClient),
+          Logger.minimumLogLevel(envVars.ENV === "dev" ? LogLevel.Debug : LogLevel.Info),
         ).pipe(Layer.provide(Logger.pretty)),
       ),
     [queryClient],

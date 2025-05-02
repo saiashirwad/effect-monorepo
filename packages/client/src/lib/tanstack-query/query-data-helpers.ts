@@ -92,6 +92,14 @@ export function makeHelpers<Data, Variables = void>(
   type QueryParams = Variables extends void ? [] : [Variables];
 
   return {
+    getData: (...variables: QueryParams) =>
+      Effect.andThen(QueryClient, (client) =>
+        client.getQueryData<Data>(
+          variables.length === 0
+            ? (queryKey as () => readonly [string])()
+            : (queryKey as (v: Variables) => readonly [string, ...Array<unknown>])(variables[0]),
+        ),
+      ),
     removeQuery: (...variables: QueryParams) =>
       Effect.andThen(QueryClient, (client) => {
         client.removeQueries({
