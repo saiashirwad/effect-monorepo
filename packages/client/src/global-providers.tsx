@@ -9,15 +9,16 @@ import * as ManagedRuntime from "effect/ManagedRuntime";
 import React from "react";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { Toaster } from "./components/ui";
-import { SseQueries } from "./data-access/sse-queries";
 import "./index.css";
-import { ApiClient } from "./layers/api-client";
-import { NetworkMonitor } from "./layers/common/network-monitor";
-import { QueryClient } from "./layers/common/query-client";
-import { type LiveManagedRuntime } from "./layers/live-layer";
-import { RuntimeProvider } from "./layers/runtime/runtime-provider";
 import { envVars } from "./lib/env-vars";
 import { routeTree } from "./routeTree.gen";
+import { ApiClient } from "./services/common/api-client";
+import { NetworkMonitor } from "./services/common/network-monitor";
+import { QueryClient } from "./services/common/query-client";
+import { SseQueries } from "./services/data-access/sse-queries";
+import { type LiveManagedRuntime } from "./services/live-layer";
+import { RuntimeProvider } from "./services/runtime/runtime-provider";
+import { WorkerService } from "./services/worker/worker-service";
 
 const router = createRouter({ routeTree });
 
@@ -51,6 +52,7 @@ const InnerProviders: React.FC = () => {
     () =>
       ManagedRuntime.make(
         Layer.mergeAll(
+          WorkerService.Default,
           NetworkMonitor.Default,
           ApiClient.Default,
           QueryClient.make(queryClient),

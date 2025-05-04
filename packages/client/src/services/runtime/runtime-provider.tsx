@@ -1,4 +1,4 @@
-import { type LiveManagedRuntime } from "@/layers/live-layer";
+import { type LiveManagedRuntime } from "@/services/live-layer";
 import { constVoid } from "effect/Function";
 import React from "react";
 import { RuntimeContext } from "./runtime-context";

@@ -36,7 +36,7 @@ services:
       - QUERY_BASE_PATH=/
     networks:
       - jaeger-network
-    restart: no
+    restart: unless-stopped
 
 networks:
   jaeger-network:

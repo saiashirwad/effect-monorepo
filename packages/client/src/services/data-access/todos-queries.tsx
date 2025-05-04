@@ -1,11 +1,11 @@
+import { QueryData, useEffectMutation, useEffectQuery } from "@/lib/tanstack-query";
 import { SseContract, type TodosContract } from "@org/domain/api/Contracts";
 import { type TodoId } from "@org/domain/EntityIds";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as Ref from "effect/Ref";
 import * as Stream from "effect/Stream";
-import { ApiClient } from "../layers/api-client";
-import { QueryData, useEffectMutation, useEffectQuery } from "../lib/tanstack-query";
+import { ApiClient } from "../common/api-client";
 
 export namespace TodosQueries {
   const todosKey = QueryData.makeQueryKey("todos");

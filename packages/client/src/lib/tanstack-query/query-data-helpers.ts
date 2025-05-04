@@ -1,4 +1,4 @@
-import { QueryClient } from "@/layers/common/query-client";
+import { QueryClient } from "@/services/common/query-client";
 import * as Effect from "effect/Effect";
 import * as mutative from "mutative";
 import { type QueryVariables } from "./effect-query";

@@ -40,4 +40,7 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
   } satisfies ViteUserConfig["test"],
+  worker: {
+    format: "es",
+  },
 });

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { TodosQueries } from "@/data-access/todos-queries";
 import { makeFormOptions } from "@/lib/tanstack-query/make-form-options";
+import { TodosQueries } from "@/services/data-access/todos-queries";
 import { TodosContract } from "@org/domain/api/Contracts";
 import { useForm } from "@tanstack/react-form";
 import * as Schema from "effect/Schema";

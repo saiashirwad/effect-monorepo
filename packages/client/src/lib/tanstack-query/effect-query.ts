@@ -1,5 +1,5 @@
-import { type LiveRuntimeContext } from "@/layers/live-layer";
-import { useRuntime } from "@/layers/runtime/use-runtime";
+import { type LiveRuntimeContext } from "@/services/live-layer";
+import { useRuntime } from "@/services/runtime/use-runtime";
 import {
   type GetNextPageParamFunction,
   type GetPreviousPageParamFunction,

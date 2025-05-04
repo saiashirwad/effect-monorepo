@@ -1,11 +1,35 @@
-import { Card, Skeleton } from "@/components/ui";
-import { TodosQueries } from "@/data-access/todos-queries";
+import { Button, Card, Skeleton } from "@/components/ui";
+import { useEffectMutation } from "@/lib/tanstack-query";
+import { TodosQueries } from "@/services/data-access/todos-queries";
+import { WorkerService } from "@/services/worker/worker-service";
 import * as Array from "effect/Array";
+import * as Effect from "effect/Effect";
+import { toast } from "sonner";
 import { AddTodo } from "./add-todo";
 import { TodoItem } from "./todo-item";
 
 export const IndexPage = () => {
   const todosQuery = TodosQueries.useTodosQuery();
+
+  const workerMutation = useEffectMutation({
+    mutationKey: ["worker"],
+    mutationFn: Effect.fnUntraced(function* () {
+      const { client } = yield* WorkerService;
+
+      const largeData = Array.makeBy(1_000_000, (i) => i);
+      const filterThreshold = 99_990;
+
+      const result = yield* client.FilterData({
+        data: largeData,
+        threshold: filterThreshold,
+      });
+
+      return result;
+    }),
+    toastifyErrors: {
+      FilterError: () => "Error filtering data",
+    },
+  });
 
   return (
     <Card className="mx-auto w-full max-w-lg shadow-md">
@@ -30,6 +54,20 @@ export const IndexPage = () => {
           )}
         </div>
       </Card.Content>
+
+      <Card.Footer>
+        <Button
+          onClick={() => {
+            workerMutation.mutate(void 0, {
+              onSuccess: (data) => {
+                toast.success(`Filtered ${data.length} items`);
+              },
+            });
+          }}
+        >
+          Filter Data
+        </Button>
+      </Card.Footer>
     </Card>
   );
 };
