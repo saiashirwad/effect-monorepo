@@ -1,5 +1,6 @@
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
-import { NodeHttpServer, NodeRuntime } from "@effect/platform-node";
+import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer";
+import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as HttpApiBuilder from "@effect/platform/HttpApiBuilder";
 import * as HttpMiddleware from "@effect/platform/HttpMiddleware";
 import * as HttpServer from "@effect/platform/HttpServer";

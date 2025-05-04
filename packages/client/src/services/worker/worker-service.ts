@@ -1,5 +1,5 @@
-import { BrowserWorker } from "@effect/platform-browser";
-import { RpcClient } from "@effect/rpc";
+import * as BrowserWorker from "@effect/platform-browser/BrowserWorker";
+import * as RpcClient from "@effect/rpc/RpcClient";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { WorkerRpc } from "./worker-contract";

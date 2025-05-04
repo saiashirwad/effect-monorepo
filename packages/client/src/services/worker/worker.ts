@@ -1,6 +1,7 @@
-import { BrowserWorkerRunner } from "@effect/platform-browser";
 import * as BrowserRuntime from "@effect/platform-browser/BrowserRuntime";
-import { RpcSerialization, RpcServer } from "@effect/rpc";
+import * as BrowserWorkerRunner from "@effect/platform-browser/BrowserWorkerRunner";
+import * as RpcSerialization from "@effect/rpc/RpcSerialization";
+import * as RpcServer from "@effect/rpc/RpcServer";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { FilterError, WorkerRpc } from "./worker-contract";

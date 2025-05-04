@@ -19,7 +19,14 @@ export default {
   },
 
   create: function (context) {
-    const effectPackages = ["effect", "@effect/platform"];
+    const effectPackages = [
+      "effect",
+      "@effect/platform",
+      "@effect/rpc",
+      "@effect/sql",
+      "@effect/platform-browser",
+      "@effect/platform-node",
+    ];
 
     return {
       ImportDeclaration(node) {
