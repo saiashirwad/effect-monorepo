@@ -21,7 +21,7 @@ export const IndexPage = () => {
       const filterThreshold = 99_990;
 
       const [duration, result] = yield* Effect.timed(
-        client.FilterData({
+        client.filterData({
           data: largeData,
           threshold: filterThreshold,
         }),
@@ -42,7 +42,7 @@ export const IndexPage = () => {
 
       yield* Effect.logInfo(`Requesting prime calculation up to ${upperBound}`);
 
-      const [duration, result] = yield* Effect.timed(client.CalculatePrimes({ upperBound }));
+      const [duration, result] = yield* Effect.timed(client.calculatePrimes({ upperBound }));
 
       toast.success(`Found ${result} primes in ${Duration.format(duration)}`);
     }),

@@ -21,7 +21,7 @@ const Live = WorkerRpc.toLayer(
     yield* Effect.logInfo("Worker started");
 
     return {
-      FilterData: (req) =>
+      filterData: (req) =>
         Effect.gen(function* () {
           yield* Effect.logInfo(
             `Worker received request to filter ${req.data.length} items with threshold ${req.threshold}`,
@@ -38,7 +38,7 @@ const Live = WorkerRpc.toLayer(
           yield* Effect.logInfo(`Worker finished filtering. Returning ${filtered.length} items.`);
           return filtered;
         }),
-      CalculatePrimes: ({ upperBound }) =>
+      calculatePrimes: ({ upperBound }) =>
         Effect.gen(function* () {
           yield* Effect.logInfo(`Worker received request to calculate primes up to ${upperBound}`);
 

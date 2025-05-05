@@ -7,7 +7,7 @@ export class FilterError extends Schema.TaggedError<FilterError>()("FilterError"
 }) {}
 
 export class WorkerRpc extends RpcGroup.make(
-  Rpc.make("FilterData", {
+  Rpc.make("filterData", {
     success: Schema.Array(Schema.Number),
     error: FilterError,
     payload: {
@@ -15,7 +15,7 @@ export class WorkerRpc extends RpcGroup.make(
       threshold: Schema.Number,
     },
   }),
-  Rpc.make("CalculatePrimes", {
+  Rpc.make("calculatePrimes", {
     success: Schema.Number,
     error: Schema.Never,
     payload: {

@@ -70,6 +70,7 @@
     "overrides": {
       "vitest": "^2.0.5",
       "effect": "3.14.16",
+      "@effect/rpc": "0.56.6",
       "@effect/platform": "0.80.16",
       "@effect/platform-browser": "0.60.9",
       "@effect/experimental": "0.44.16",
