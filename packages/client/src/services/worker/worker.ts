@@ -1,6 +1,5 @@
 import * as BrowserRuntime from "@effect/platform-browser/BrowserRuntime";
 import * as BrowserWorkerRunner from "@effect/platform-browser/BrowserWorkerRunner";
-import * as RpcSerialization from "@effect/rpc/RpcSerialization";
 import * as RpcServer from "@effect/rpc/RpcServer";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -59,7 +58,6 @@ const Live = WorkerRpc.toLayer(
 const RpcWorkerServer = RpcServer.layer(WorkerRpc).pipe(
   Layer.provide(Live),
   Layer.provide(RpcServer.layerProtocolWorkerRunner),
-  Layer.provide(RpcSerialization.layerJson),
   Layer.provide(BrowserWorkerRunner.layer),
 );
 
