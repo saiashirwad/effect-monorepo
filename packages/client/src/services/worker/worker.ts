@@ -6,6 +6,16 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { FilterError, WorkerRpc } from "./worker-contract";
 
+const isPrime = (num: number): boolean => {
+  if (num <= 1) return false;
+  if (num <= 3) return true;
+  if (num % 2 === 0 || num % 3 === 0) return false;
+  for (let i = 5; i * i <= num; i = i + 6) {
+    if (num % i === 0 || num % (i + 2) === 0) return false;
+  }
+  return true;
+};
+
 const Live = WorkerRpc.toLayer(
   Effect.gen(function* () {
     yield* Effect.logInfo("Worker started");
@@ -28,12 +38,20 @@ const Live = WorkerRpc.toLayer(
           yield* Effect.logInfo(`Worker finished filtering. Returning ${filtered.length} items.`);
           return filtered;
         }),
-      Test: () =>
-        Effect.logInfo("Worker received test request").pipe(
-          Effect.zipRight(Effect.sleep("5 seconds")),
-          Effect.zipRight(Effect.logInfo("Worker finished test request")),
-          Effect.asVoid,
-        ),
+      CalculatePrimes: ({ upperBound }) =>
+        Effect.gen(function* () {
+          yield* Effect.logInfo(`Worker received request to calculate primes up to ${upperBound}`);
+
+          let count = 0;
+          for (let i = 2; i <= upperBound; i++) {
+            if (isPrime(i)) {
+              count += 1;
+            }
+          }
+
+          yield* Effect.logInfo(`Worker finished calculating primes. Found ${count} primes.`);
+          return count;
+        }),
     };
   }),
 );

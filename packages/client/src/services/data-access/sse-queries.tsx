@@ -41,7 +41,6 @@ export namespace SseQueries {
             Stream.filter((line) => line.startsWith(":keep-alive")),
             Stream.timeout("8 seconds"),
             Stream.tapError(() => Effect.logError("[SseConnector] ka timed out")),
-            Stream.tap(() => Effect.logDebug("[SseConnector] ka")),
           );
 
           const dataStream = yield* source.pipe(

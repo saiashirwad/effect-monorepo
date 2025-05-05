@@ -15,9 +15,11 @@ export class WorkerRpc extends RpcGroup.make(
       threshold: Schema.Number,
     },
   }),
-  Rpc.make("Test", {
-    success: Schema.Void,
+  Rpc.make("CalculatePrimes", {
+    success: Schema.Number,
     error: Schema.Never,
-    payload: {},
+    payload: {
+      upperBound: Schema.Number,
+    },
   }),
 ) {}

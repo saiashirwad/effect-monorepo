@@ -3,6 +3,7 @@ import { useEffectMutation } from "@/lib/tanstack-query";
 import { TodosQueries } from "@/services/data-access/todos-queries";
 import { WorkerService } from "@/services/worker/worker-service";
 import * as Array from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { toast } from "sonner";
 import { AddTodo } from "./add-todo";
@@ -19,16 +20,32 @@ export const IndexPage = () => {
       const largeData = Array.makeBy(1_000_000, (i) => i);
       const filterThreshold = 99_990;
 
-      const result = yield* client.FilterData({
-        data: largeData,
-        threshold: filterThreshold,
-      });
+      const [duration, result] = yield* Effect.timed(
+        client.FilterData({
+          data: largeData,
+          threshold: filterThreshold,
+        }),
+      );
 
-      return result;
+      toast.success(`Filtered ${result.length} items in ${Duration.format(duration)}`);
     }),
     toastifyErrors: {
       FilterError: () => "Error filtering data",
     },
+  });
+
+  const workerPrimeMutation = useEffectMutation({
+    mutationKey: ["worker-primes"],
+    mutationFn: Effect.fnUntraced(function* () {
+      const { client } = yield* WorkerService;
+      const upperBound = 10_000_000;
+
+      yield* Effect.logInfo(`Requesting prime calculation up to ${upperBound}`);
+
+      const [duration, result] = yield* Effect.timed(client.CalculatePrimes({ upperBound }));
+
+      toast.success(`Found ${result} primes in ${Duration.format(duration)}`);
+    }),
   });
 
   return (
@@ -55,17 +72,21 @@ export const IndexPage = () => {
         </div>
       </Card.Content>
 
-      <Card.Footer>
+      <Card.Footer className="flex gap-2">
         <Button
           onClick={() => {
-            workerMutation.mutate(void 0, {
-              onSuccess: (data) => {
-                toast.success(`Filtered ${data.length} items`);
-              },
-            });
+            workerMutation.mutate(void 0);
           }}
         >
           Filter Data
+        </Button>
+
+        <Button
+          onClick={() => {
+            workerPrimeMutation.mutate(void 0);
+          }}
+        >
+          Calculate Primes
         </Button>
       </Card.Footer>
     </Card>
