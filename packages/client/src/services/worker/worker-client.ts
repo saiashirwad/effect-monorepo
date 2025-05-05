@@ -10,7 +10,7 @@ const RpcProtocol = RpcClient.layerProtocolWorker({ size: 2, concurrency: 1 }).p
   Layer.orDie,
 );
 
-export class WorkerService extends Effect.Service<WorkerService>()("@org/Worker", {
+export class WorkerClient extends Effect.Service<WorkerClient>()("@org/WorkerClient", {
   dependencies: [RpcProtocol],
   scoped: Effect.gen(function* () {
     return {

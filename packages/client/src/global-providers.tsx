@@ -18,7 +18,7 @@ import { QueryClient } from "./services/common/query-client";
 import { SseQueries } from "./services/data-access/sse-queries";
 import { type LiveManagedRuntime } from "./services/live-layer";
 import { RuntimeProvider } from "./services/runtime/runtime-provider";
-import { WorkerService } from "./services/worker/worker-service";
+import { WorkerClient } from "./services/worker/worker-client";
 
 const router = createRouter({ routeTree });
 
@@ -52,7 +52,7 @@ const InnerProviders: React.FC = () => {
     () =>
       ManagedRuntime.make(
         Layer.mergeAll(
-          WorkerService.Default,
+          WorkerClient.Default,
           NetworkMonitor.Default,
           ApiClient.Default,
           QueryClient.make(queryClient),

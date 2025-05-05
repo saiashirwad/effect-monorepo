@@ -1,7 +1,7 @@
 import { Button, Card, Skeleton } from "@/components/ui";
 import { useEffectMutation } from "@/lib/tanstack-query";
 import { TodosQueries } from "@/services/data-access/todos-queries";
-import { WorkerService } from "@/services/worker/worker-service";
+import { WorkerClient } from "@/services/worker/worker-client";
 import * as Array from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -15,7 +15,7 @@ export const IndexPage = () => {
   const workerMutation = useEffectMutation({
     mutationKey: ["worker"],
     mutationFn: Effect.fnUntraced(function* () {
-      const { client } = yield* WorkerService;
+      const { client } = yield* WorkerClient;
 
       const largeData = Array.makeBy(1_000_000, (i) => i);
       const filterThreshold = 99_990;
@@ -37,7 +37,7 @@ export const IndexPage = () => {
   const workerPrimeMutation = useEffectMutation({
     mutationKey: ["worker-primes"],
     mutationFn: Effect.fnUntraced(function* () {
-      const { client } = yield* WorkerService;
+      const { client } = yield* WorkerClient;
       const upperBound = 10_000_000;
 
       yield* Effect.logInfo(`Requesting prime calculation up to ${upperBound}`);
