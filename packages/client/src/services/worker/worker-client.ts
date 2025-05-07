@@ -2,7 +2,7 @@ import * as BrowserWorker from "@effect/platform-browser/BrowserWorker";
 import * as RpcClient from "@effect/rpc/RpcClient";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { WorkerRpc } from "./worker-contract";
+import { WorkerRpc } from "./worker-rpc";
 import MyWorker from "./worker.ts?worker";
 
 const RpcProtocol = RpcClient.layerProtocolWorker({ size: 2, concurrency: 1 }).pipe(
